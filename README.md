@@ -4,14 +4,16 @@ PowerShell script to detect and fix Microsoft Store app issues that prevent Wind
 
 ## Problem
 
-When creating a Windows reference image, Sysprep may fail with error `0x80073cf2` if Microsoft Store apps are installed for a user but not provisioned for all users.
+When creating a Windows reference image, Sysprep may fail with error `0x80073cf2` if Microsoft Store apps or sideloaded apps are installed for a user but not provisioned for all users.
 
 ## Features
 
-* Detects problematic Microsoft Store apps
-* Excludes staged and framework packages
-* Interactive package removal
-* Detailed package info and install state
+* Detects problematic Store and sideloaded apps
+* Shows detailed package states (Staged/Installed)
+* Interactive package removal with confirmation
+* Detailed package info including publisher and signature type
+* Handles both Microsoft and third-party packages
+* Excludes framework packages
 
 ## Prerequisites
 
@@ -31,6 +33,7 @@ When creating a Windows reference image, Sysprep may fail with error `0x80073cf2
 Before running Sysprep:
 * Disconnect from Internet OR
 * Disable Store Automatic Updates in Audit mode
+* Avoid installing Store apps or sideloaded apps without proper provisioning
 
 ## Troubleshooting
 
@@ -47,3 +50,8 @@ Error SYSPRP Package <PackageFullName> was installed for a user,
 but not provisioned for all users.
 Error: 0x80073cf2
 ```
+
+Common causes:
+* Language packs installed from Store
+* Third-party apps installed from Store
+* Sideloaded apps without proper provisioning
