@@ -2,7 +2,7 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import Svg, { Circle, Path, Text as SvgText } from 'react-native-svg';
 import { Text } from './ui/Text';
-import { theme } from '../theme';
+import { useTheme } from '../theme';
 
 export interface PieChartData {
   label: string;
@@ -25,6 +25,9 @@ export const PieChart: React.FC<PieChartProps> = ({
   centerValue,
   centerLabel,
 }) => {
+  const { theme } = useTheme();
+  const styles = React.useMemo(() => createStyles(theme), [theme]);
+
   const radius = size / 2 - 10;
   const center = size / 2;
 
@@ -139,34 +142,35 @@ export const PieChart: React.FC<PieChartProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    alignItems: 'center',
-  },
-  title: {
-    marginBottom: theme.spacing[3],
-  },
-  emptyState: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: theme.colors.border,
-    borderRadius: theme.borderRadius.full,
-  },
-  legend: {
-    marginTop: theme.spacing[4],
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    gap: theme.spacing[3],
-  },
-  legendItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing[2],
-  },
-  legendColor: {
-    width: 16,
-    height: 16,
-    borderRadius: theme.borderRadius.sm,
-  },
-});
+const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
+  StyleSheet.create({
+    container: {
+      alignItems: 'center',
+    },
+    title: {
+      marginBottom: theme.spacing[3],
+    },
+    emptyState: {
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: theme.colors.border,
+      borderRadius: theme.borderRadius.full,
+    },
+    legend: {
+      marginTop: theme.spacing[4],
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      justifyContent: 'center',
+      gap: theme.spacing[3],
+    },
+    legendItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: theme.spacing[2],
+    },
+    legendColor: {
+      width: 16,
+      height: 16,
+      borderRadius: theme.borderRadius.sm,
+    },
+  });

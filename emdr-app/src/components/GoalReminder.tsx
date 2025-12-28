@@ -3,7 +3,7 @@ import { View, StyleSheet, Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Card } from './ui/Card';
 import { Text } from './ui/Text';
-import { theme } from '../theme';
+import { useTheme } from '../theme';
 
 interface GoalReminderProps {
   goal: string;
@@ -11,6 +11,8 @@ interface GoalReminderProps {
 }
 
 export const GoalReminder: React.FC<GoalReminderProps> = ({ goal, onDismiss }) => {
+  const { theme } = useTheme();
+  const styles = React.useMemo(() => createStyles(theme), [theme]);
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.9)).current;
 
@@ -83,38 +85,39 @@ export const GoalReminder: React.FC<GoalReminderProps> = ({ goal, onDismiss }) =
   );
 };
 
-const styles = StyleSheet.create({
-  overlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: theme.layout.screenPadding,
-    zIndex: 1000,
-  },
-  container: {
-    width: '100%',
-    maxWidth: 400,
-  },
-  card: {
-    padding: theme.spacing[8],
-    gap: theme.spacing[5],
-    backgroundColor: theme.colors.surfaceLight,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing[3],
-    justifyContent: 'center',
-  },
-  title: {
-    textAlign: 'center',
-  },
-  goalText: {
-    fontStyle: 'italic',
-    lineHeight: 28,
-  },
-  hint: {
-    marginTop: theme.spacing[2],
-  },
-});
+const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
+  StyleSheet.create({
+    overlay: {
+      ...StyleSheet.absoluteFillObject,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: theme.layout.screenPadding,
+      zIndex: 1000,
+    },
+    container: {
+      width: '100%',
+      maxWidth: 400,
+    },
+    card: {
+      padding: theme.spacing[8],
+      gap: theme.spacing[5],
+      backgroundColor: theme.colors.surfaceLight,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: theme.spacing[3],
+      justifyContent: 'center',
+    },
+    title: {
+      textAlign: 'center',
+    },
+    goalText: {
+      fontStyle: 'italic',
+      lineHeight: 28,
+    },
+    hint: {
+      marginTop: theme.spacing[2],
+    },
+  });

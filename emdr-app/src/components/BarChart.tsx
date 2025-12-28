@@ -2,7 +2,7 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import Svg, { Rect, Text as SvgText, Line } from 'react-native-svg';
 import { Text } from './ui/Text';
-import { theme } from '../theme';
+import { useTheme } from '../theme';
 
 export interface BarChartData {
   label: string;
@@ -27,6 +27,9 @@ export const BarChart: React.FC<BarChartProps> = ({
   title,
   showValues = true,
 }) => {
+  const { theme } = useTheme();
+  const styles = React.useMemo(() => createStyles(theme), [theme]);
+
   const paddingLeft = 40;
   const paddingRight = 20;
   const paddingTop = 20;
@@ -124,11 +127,12 @@ export const BarChart: React.FC<BarChartProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    alignItems: 'center',
-  },
-  title: {
-    marginBottom: theme.spacing[3],
-  },
-});
+const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
+  StyleSheet.create({
+    container: {
+      alignItems: 'center',
+    },
+    title: {
+      marginBottom: theme.spacing[3],
+    },
+  });
