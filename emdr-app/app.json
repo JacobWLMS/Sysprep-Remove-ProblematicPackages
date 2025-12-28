@@ -2,7 +2,7 @@
   "expo": {
     "name": "EMDR Bilateral Stimulation",
     "slug": "emdr-bilateral-stimulation",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "jsEngine": "hermes",
     "newArchEnabled": true,
     "web": {
@@ -12,16 +12,6 @@
       "eas": {
         "projectId": "e0fc300c-6daa-4421-b54c-7dd3a6dfcbbf"
       }
-    },
-    "plugins": [
-      "expo-audio"
-    ],
-    "android": {
-      "permissions": [
-        "android.permission.RECORD_AUDIO",
-        "android.permission.MODIFY_AUDIO_SETTINGS"
-      ],
-      "package": "com.jacobwlms.emdrbilateralstimulation"
     }
   }
 }

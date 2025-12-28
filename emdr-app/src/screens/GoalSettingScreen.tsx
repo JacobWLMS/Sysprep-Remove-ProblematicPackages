@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, TextInput, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { View, StyleSheet, TextInput, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Button } from '../components/ui/Button';
+import { AppHeader } from '../components/ui/AppHeader';
 import { Card } from '../components/ui/Card';
 import { Text } from '../components/ui/Text';
 import { useTheme } from '../theme';
@@ -22,90 +23,72 @@ export const GoalSettingScreen: React.FC<GoalSettingScreenProps> = ({
   const [goal, setGoal] = useState('');
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
+    <View style={styles.container}>
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={[
           styles.content,
           {
-            paddingTop: Math.max(insets.top, theme.spacing[5]),
-            paddingBottom: Math.max(insets.bottom, theme.spacing[5]),
-            paddingLeft: Math.max(insets.left, theme.layout.screenPadding),
-            paddingRight: Math.max(insets.right, theme.layout.screenPadding),
+            paddingBottom: Math.max(insets.bottom, theme.spacing[4]),
           },
         ]}
         keyboardShouldPersistTaps="handled"
       >
-        <Button
-          variant="ghost"
-          size="small"
-          onPress={onBack}
-          icon={<Ionicons name="arrow-back" size={20} color={theme.colors.primary} />}
-          style={styles.backButton}
-        >
-          <Text variant="label" color="primary">
-            Back
-          </Text>
-        </Button>
+        <AppHeader title="Set Your Intention" left={{ onPress: onBack, icon: <Ionicons name="arrow-back" size={18} color={theme.colors.primary} /> }} compact />
 
-        <View style={styles.mainContent}>
-          <View>
-            <View style={styles.titleContainer}>
-              <View style={[styles.iconCircle, { backgroundColor: theme.colors.secondary + '20' }]}>
-                <Ionicons name="bulb" size={28} color={theme.colors.secondary} />
-              </View>
-              <Text variant="h3" align="center" style={styles.title}>
-                Set Your Intention
-              </Text>
-              <Text variant="bodySmall" color="textSecondary" align="center" style={styles.description}>
-                What would you like to focus on?
-              </Text>
+        <View style={styles.mainContentTop}>
+          <View style={styles.titleContainer}>
+            <View style={[styles.iconCircle, { backgroundColor: theme.colors.secondary + '20' }]}>
+              <Ionicons name="bulb" size={28} color={theme.colors.secondary} />
             </View>
-
-            <Card variant="elevated" style={styles.goalCard}>
-              <Text variant="caption" color="textSecondary" style={styles.goalHint}>
-                What memory, feeling, or belief would you like to process?
-              </Text>
-              <TextInput
-                style={styles.goalInput}
-                placeholder="e.g., Letting go of anxiety about work..."
-                placeholderTextColor={theme.colors.textTertiary}
-                value={goal}
-                onChangeText={setGoal}
-                multiline
-                numberOfLines={3}
-                maxLength={200}
-                textAlignVertical="top"
-                autoFocus
-              />
-              <Text variant="caption" color="textTertiary" style={styles.goalCounter}>
-                {goal.length}/200
-              </Text>
-            </Card>
+            <Text variant="h3" align="center" style={styles.title}>
+              Set Your Intention
+            </Text>
+            <Text variant="bodySmall" color="textSecondary" align="center" style={styles.description}>
+              What would you like to focus on?
+            </Text>
           </View>
 
-          <View style={styles.buttonContainer}>
-            <Button
-              size="large"
-              fullWidth
-              onPress={() => onContinue(goal.trim())}
-              icon={<Ionicons name="arrow-forward" size={24} color={theme.colors.white} />}
-              disabled={!goal.trim()}
-            >
-              {goal.trim() ? 'Continue' : 'Enter Your Focus First'}
-            </Button>
-            {!goal.trim() && (
-              <Text variant="caption" color="textTertiary" align="center" style={styles.hint}>
-                Setting an intention helps guide your healing journey
-              </Text>
-            )}
-          </View>
+          <Card variant="elevated" style={styles.goalCard}>
+            <Text variant="caption" color="textSecondary" style={styles.goalHint}>
+              What memory, feeling, or belief would you like to process?
+            </Text>
+            <TextInput
+              style={styles.goalInput}
+              placeholder="e.g., Letting go of anxiety about work..."
+              placeholderTextColor={theme.colors.textTertiary}
+              value={goal}
+              onChangeText={setGoal}
+              multiline
+              numberOfLines={3}
+              maxLength={200}
+              textAlignVertical="top"
+              autoFocus
+            />
+            <Text variant="caption" color="textTertiary" style={styles.goalCounter}>
+              {goal.length}/200
+            </Text>
+          </Card>
+        </View>
+
+        <View style={styles.buttonContainer}>
+          <Button
+            size="large"
+            fullWidth
+            onPress={() => onContinue(goal.trim())}
+            icon={<Ionicons name="arrow-forward" size={24} color={theme.colors.white} />}
+            disabled={!goal.trim()}
+          >
+            {goal.trim() ? 'Continue' : 'Enter Your Focus First'}
+          </Button>
+          {!goal.trim() && (
+            <Text variant="caption" color="textTertiary" align="center" style={styles.hint}>
+              Setting an intention helps guide your healing journey
+            </Text>
+          )}
         </View>
       </ScrollView>
-    </KeyboardAvoidingView>
+    </View>
   );
 };
 
@@ -120,15 +103,12 @@ const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
     },
     content: {
       flexGrow: 1,
-      justifyContent: 'space-between',
+      paddingHorizontal: theme.layout.screenPadding,
+      paddingTop: theme.spacing[5],
+      gap: theme.spacing[4],
     },
-    backButton: {
-      alignSelf: 'flex-start',
-      marginBottom: theme.spacing[3],
-    },
-    mainContent: {
+    mainContentTop: {
       flex: 1,
-      justifyContent: 'space-between',
     },
     titleContainer: {
       alignItems: 'center',
@@ -169,9 +149,11 @@ const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
       alignSelf: 'flex-end',
     },
     buttonContainer: {
-      paddingTop: theme.spacing[4],
+      paddingHorizontal: theme.spacing[2],
+      gap: theme.spacing[2],
+      marginTop: theme.spacing[2],
     },
     hint: {
-      marginTop: theme.spacing[2],
+      marginTop: theme.spacing[1],
     },
   });

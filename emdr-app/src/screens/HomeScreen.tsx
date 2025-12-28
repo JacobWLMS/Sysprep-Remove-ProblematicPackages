@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Button } from '../components/ui/Button';
 import { Text } from '../components/ui/Text';
+import { AppHeader } from '../components/ui/AppHeader';
 import { Logo } from '../components/Logo';
 import { useTheme } from '../theme';
 
@@ -13,34 +14,21 @@ const IS_SHORT_SCREEN = SCREEN_HEIGHT < 700;
 
 interface HomeScreenProps {
   onStartSession: () => void;
-  onOpenSettings: () => void;
-  onOpenStats: () => void;
 }
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({
   onStartSession,
-  onOpenSettings,
-  onOpenStats,
 }) => {
   const { theme } = useTheme();
   const styles = React.useMemo(() => createStyles(theme), [theme]);
   const insets = useSafeAreaInsets();
 
   return (
-    <View
-      style={[
-        styles.container,
-        {
-          paddingTop: Math.max(insets.top, theme.spacing[4]),
-          paddingBottom: Math.max(insets.bottom, theme.spacing[4]),
-          paddingLeft: Math.max(insets.left, theme.layout.screenPadding),
-          paddingRight: Math.max(insets.right, theme.layout.screenPadding),
-        },
-      ]}
-    >
+    <View style={[styles.container, { paddingBottom: Math.max(insets.bottom, theme.spacing[4]) }]}>
+      <AppHeader title={<Logo size={IS_SHORT_SCREEN ? 60 : IS_SMALL_SCREEN ? 70 : 80} />} />
+
       {/* Logo and Header */}
-      <View style={styles.header}>
-        <Logo size={IS_SHORT_SCREEN ? 60 : IS_SMALL_SCREEN ? 70 : 80} />
+      <View style={[styles.headerContent, { paddingHorizontal: Math.max(insets.left + insets.right > 0 ? Math.max(insets.left, insets.right) : 0, theme.layout.screenPadding) }]}>
         <Text variant={IS_SHORT_SCREEN ? 'h3' : 'h2'} color="brown" style={styles.title}>
           EMDR Therapy
         </Text>
@@ -50,7 +38,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
       </View>
 
       {/* Three Modalities - Compact horizontal row */}
-      <View style={styles.modalitiesContainer}>
+      <View style={[styles.modalitiesContainer, { paddingHorizontal: Math.max(insets.left + insets.right > 0 ? Math.max(insets.left, insets.right) : 0, theme.layout.screenPadding) }]}>
         <View style={styles.modalityItem}>
           <View style={[styles.iconCircle, { backgroundColor: theme.colors.primary20 }]}>
             <Ionicons name="eye-outline" size={24} color={theme.colors.primary} />
@@ -80,7 +68,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
       </View>
 
       {/* Welcome Message */}
-      <View style={styles.welcomeCard}>
+      <View style={[styles.welcomeCard, { marginHorizontal: Math.max(insets.left + insets.right > 0 ? Math.max(insets.left, insets.right) : 0, theme.layout.screenPadding) }]}>
         <Text variant={IS_SHORT_SCREEN ? 'h5' : 'h4'} color="textPrimary" align="center" style={styles.welcomeTitle}>
           Ready to Begin Your Healing Journey?
         </Text>
@@ -92,18 +80,20 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
       <View style={styles.spacer} />
 
       {/* Start Button */}
-      <Button
-        size="large"
-        fullWidth
-        onPress={onStartSession}
-        icon={<Ionicons name="play-circle" size={28} color={theme.colors.white} />}
-        style={styles.startButton}
-      >
-        Start Your Session
-      </Button>
+      <View style={{ paddingHorizontal: Math.max(insets.left + insets.right > 0 ? Math.max(insets.left, insets.right) : 0, theme.layout.screenPadding) }}>
+        <Button
+          size="large"
+          fullWidth
+          onPress={onStartSession}
+          icon={<Ionicons name="play-circle" size={28} color={theme.colors.white} />}
+          style={styles.startButton}
+        >
+          Start Your Session
+        </Button>
+      </View>
 
       {/* Info Footer */}
-      <View style={styles.infoFooter}>
+      <View style={[styles.infoFooter, { paddingHorizontal: Math.max(insets.left + insets.right > 0 ? Math.max(insets.left, insets.right) : 0, theme.layout.screenPadding) }]}>
         <Ionicons name="information-circle-outline" size={16} color={theme.colors.primary} />
         <Text variant="caption" color="textSecondary" style={styles.infoText}>
           Best used under professional guidance
@@ -120,9 +110,10 @@ const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
       backgroundColor: theme.colors.background,
       justifyContent: 'space-between',
     },
-    header: {
+    headerContent: {
       alignItems: 'center',
       gap: IS_SHORT_SCREEN ? theme.spacing[2] : theme.spacing[3],
+      paddingTop: theme.spacing[2],
     },
     title: {
       marginTop: theme.spacing[1],

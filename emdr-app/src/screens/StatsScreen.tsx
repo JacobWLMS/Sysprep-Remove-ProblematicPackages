@@ -3,6 +3,7 @@ import { View, ScrollView, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Button } from '../components/ui/Button';
+import { AppHeader } from '../components/ui/AppHeader';
 import { Card } from '../components/ui/Card';
 import { Text } from '../components/ui/Text';
 import { PieChart, PieChartData } from '../components/PieChart';
@@ -58,12 +59,7 @@ export const StatsScreen: React.FC<StatsScreenProps> = ({ onClose }) => {
   if (loading) {
     return (
       <View style={styles.container}>
-        <View style={styles.header}>
-          <Text variant="h2">Your Progress</Text>
-          <Button variant="ghost" size="small" onPress={onClose}>
-            <Ionicons name="close" size={24} color={theme.colors.textPrimary} />
-          </Button>
-        </View>
+        <AppHeader title="Your Progress" />
         <View style={styles.loadingContainer}>
           <Text variant="body" color="textSecondary">
             Loading your stats...
@@ -76,12 +72,7 @@ export const StatsScreen: React.FC<StatsScreenProps> = ({ onClose }) => {
   if (!stats || stats.totalSessions === 0) {
     return (
       <View style={styles.container}>
-        <View style={styles.header}>
-          <Text variant="h2">Your Progress</Text>
-          <Button variant="ghost" size="small" onPress={onClose}>
-            <Ionicons name="close" size={24} color={theme.colors.textPrimary} />
-          </Button>
-        </View>
+        <AppHeader title="Your Progress" />
         <View style={styles.emptyState}>
           <Ionicons name="bar-chart-outline" size={64} color={theme.colors.textTertiary} />
           <Text variant="h4" color="textSecondary" style={styles.emptyTitle}>
@@ -125,17 +116,11 @@ export const StatsScreen: React.FC<StatsScreenProps> = ({ onClose }) => {
 
   return (
     <View style={styles.container}>
-      <ScrollView contentContainerStyle={[styles.content, { paddingTop: Math.max(insets.top, theme.spacing[8]), paddingBottom: Math.max(insets.bottom, theme.spacing[8]) }]} showsVerticalScrollIndicator={false}>
-        {/* Header */}
-        <View style={styles.header}>
-          <Text variant="h2">Your Progress</Text>
-          <Button variant="ghost" size="small" onPress={onClose}>
-            <Ionicons name="close" size={24} color={theme.colors.textPrimary} />
-          </Button>
-        </View>
+      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: Math.max(insets.bottom, theme.spacing[8]) }]} showsVerticalScrollIndicator={false}>
+        <AppHeader title="Your Progress" />
 
         {/* Overview Stats */}
-        <View style={styles.statsGrid}>
+        <View style={[styles.statsGrid, { paddingHorizontal: Math.max(insets.left + insets.right > 0 ? Math.max(insets.left, insets.right) : 0, theme.layout.screenPadding) }]}>
           <Card variant="elevated" style={styles.statCard}>
             <Ionicons name="calendar-outline" size={32} color={theme.colors.primary} />
             <Text variant="display" color="primary">
@@ -213,7 +198,7 @@ export const StatsScreen: React.FC<StatsScreenProps> = ({ onClose }) => {
         )}
 
         {/* Recent Sessions List */}
-        <View style={styles.historySection}>
+        <View style={[styles.historySection, { paddingHorizontal: Math.max(insets.left + insets.right > 0 ? Math.max(insets.left, insets.right) : 0, theme.layout.screenPadding) }]}>
           <Text variant="h4" style={styles.sectionTitle}>
             Recent Sessions
           </Text>

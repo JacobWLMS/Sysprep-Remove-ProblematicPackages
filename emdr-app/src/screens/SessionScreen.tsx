@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { View, StyleSheet, Pressable } from 'react-native';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
+import { View, StyleSheet, Pressable, useWindowDimensions, Animated } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
@@ -7,10 +7,10 @@ import * as ScreenOrientation from 'expo-screen-orientation';
 import { VisualStimulus } from '../components/VisualStimulus';
 import { AudioEngine } from '../components/AudioEngine';
 import { HapticEngine } from '../components/HapticEngine';
+import { AppHeader } from '../components/ui/AppHeader';
 import { SessionTimer } from '../components/SessionTimer';
 import { QuickSUDCheck } from '../components/QuickSUDCheck';
 import { GoalReminder } from '../components/GoalReminder';
-import { SessionInstructions } from '../components/SessionInstructions';
 import { PreSessionCountdown } from '../components/PreSessionCountdown';
 import { Button } from '../components/ui/Button';
 import { Text } from '../components/ui/Text';
@@ -36,14 +36,14 @@ export const SessionScreen: React.FC<SessionScreenProps> = ({
 }) => {
   const { theme } = useTheme();
   const insets = useSafeAreaInsets();
-  const styles = React.useMemo(() => createStyles(theme, insets), [theme, insets]);
+  // styles depend on orientation, so created after measuring window
+  let styles = React.useMemo(() => createStyles(theme, insets, false), [theme, insets]);
   const [currentSide, setCurrentSide] = React.useState<StimulationSide>('left');
   const [midSUDs, setMidSUDs] = useState<SUDRating[]>([]);
   const [showSUDCheck, setShowSUDCheck] = useState(false);
   const [showGoalReminder, setShowGoalReminder] = useState(false);
   const [hasShownSUDForSet, setHasShownSUDForSet] = useState(false);
-  const [showInstructions, setShowInstructions] = useState(true);
-  const [showCountdown, setShowCountdown] = useState(false);
+  const [showCountdown, setShowCountdown] = useState(true);
 
   const {
     sessionState,
@@ -103,29 +103,55 @@ export const SessionScreen: React.FC<SessionScreenProps> = ({
     }
   }, [sessionState.isResting, sessionState.currentSet, hasShownSUDForSet]);
 
+  const { width, height } = useWindowDimensions();
+  const isLandscape = width > height;
+
+  // recreate styles when orientation changes
+  styles = React.useMemo(() => createStyles(theme, insets, isLandscape), [theme, insets, isLandscape]);
+
+  // Lock orientation and keep awake when session is active
   useEffect(() => {
-    // Lock orientation to landscape when session starts
-    const lockOrientation = async () => {
-      await ScreenOrientation.lockAsync(
-        ScreenOrientation.OrientationLock.LANDSCAPE
-      );
+    let mounted = true;
+
+    const applyOrientationState = async () => {
+      try {
+        // Lock to landscape during countdown and while session is active
+        if (showCountdown || sessionState.isActive) {
+          await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
+          await activateKeepAwakeAsync();
+        } else {
+          // Lock to portrait only when session is completely done
+          await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
+          await deactivateKeepAwake();
+        }
+      } catch (e) {
+        // ignore
+      }
     };
 
-    // Keep screen awake during session
-    activateKeepAwakeAsync();
-    lockOrientation();
+    if (mounted) {
+      applyOrientationState();
+    }
 
     return () => {
-      // Explicitly lock back to portrait and allow sleep when leaving
-      ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
-      deactivateKeepAwake();
+      mounted = false;
+    };
+  }, [sessionState.isActive, showCountdown]);
+
+  // Reset orientation to portrait when component unmounts
+  useEffect(() => {
+    return () => {
+      const resetOrientation = async () => {
+        try {
+          await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
+          await deactivateKeepAwake();
+        } catch (e) {
+          // ignore
+        }
+      };
+      resetOrientation();
     };
   }, []);
-
-  const handleInstructionsContinue = () => {
-    setShowInstructions(false);
-    setShowCountdown(true);
-  };
 
   const handleCountdownComplete = () => {
     setShowCountdown(false);
@@ -165,7 +191,18 @@ export const SessionScreen: React.FC<SessionScreenProps> = ({
       totalSets: sessionState.currentSet,
       completedAt: Date.now(),
     };
-    onSessionComplete(summary);
+    
+    // Reset orientation before navigating away
+    const resetAndNavigate = async () => {
+      try {
+        await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
+        await deactivateKeepAwake();
+      } catch (e) {
+        // ignore
+      }
+      onSessionComplete(summary);
+    };
+    resetAndNavigate();
   };
 
   const handleScreenPress = () => {
@@ -175,23 +212,8 @@ export const SessionScreen: React.FC<SessionScreenProps> = ({
 
   return (
     <Pressable style={styles.container} onPress={handleScreenPress}>
-      {/* Back Button */}
-      <View style={styles.header}>
-        <Button
-          variant="ghost"
-          size="small"
-          onPress={onBack}
-          icon={<Ionicons name="arrow-back" size={20} color={theme.colors.textSecondary} />}
-          style={styles.backButton}
-        >
-          <Text variant="label" color="textSecondary">Back</Text>
-        </Button>
-        {sessionState.isPaused && (
-          <Text variant="h5" style={{ color: theme.colors.warning }}>
-            PAUSED
-          </Text>
-        )}
-      </View>
+      {/* Header */}
+      <AppHeader left={{ onPress: onBack, icon: <Ionicons name="arrow-back" size={20} color={theme.colors.textSecondary} /> }} right={sessionState.isPaused ? { onPress: () => {}, label: 'PAUSED' } : null} title={null} compact />
 
       {/* Visual Stimulus - Full Screen */}
       <View style={styles.stimulusContainer}>
@@ -246,14 +268,6 @@ export const SessionScreen: React.FC<SessionScreenProps> = ({
         />
       )}
 
-      {/* Instructions Overlay */}
-      {showInstructions && (
-        <SessionInstructions
-          onContinue={handleInstructionsContinue}
-          settings={settings}
-        />
-      )}
-
       {/* Countdown Overlay */}
       {showCountdown && (
         <PreSessionCountdown onComplete={handleCountdownComplete} />
@@ -289,57 +303,54 @@ export const SessionScreen: React.FC<SessionScreenProps> = ({
   );
 };
 
-const createStyles = (
-  theme: ReturnType<typeof useTheme>['theme'],
-  insets: ReturnType<typeof useSafeAreaInsets>
-) =>
-  StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: theme.colors.background,
-    },
-    header: {
-      position: 'absolute',
-      // In landscape, use horizontal insets as top/left/right
-      top: Math.max(insets.left, theme.spacing[3]),
-      left: Math.max(insets.top, theme.spacing[3]),
-      right: Math.max(insets.right, theme.spacing[3]),
-      zIndex: 10,
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-    },
-    backButton: {
-      backgroundColor: theme.colors.transparent,
-    },
-    stimulusContainer: {
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 100, // Leave space for controls at bottom
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    overlay: {
-      position: 'absolute',
-      top: Math.max(insets.left, 60), // In landscape, left becomes top
-      left: 0,
-      right: 0,
-      zIndex: 5,
-    },
-    controls: {
-      position: 'absolute',
-      // In landscape, use right inset as bottom
-      bottom: Math.max(insets.right, theme.spacing[5]),
-      left: Math.max(insets.top, theme.spacing[5]),
-      right: Math.max(insets.bottom, theme.spacing[5]),
-      flexDirection: 'row',
-      justifyContent: 'center',
-      gap: theme.spacing[4],
-      zIndex: 10,
-    },
-    controlButton: {
-      minWidth: 140,
-    },
-  });
+  const createStyles = (
+    theme: ReturnType<typeof useTheme>['theme'],
+    insets: ReturnType<typeof useSafeAreaInsets>,
+    isLandscape: boolean
+  ) =>
+    StyleSheet.create({
+      container: {
+        flex: 1,
+        backgroundColor: theme.colors.background,
+      },
+      header: {
+        position: 'absolute',
+        top: isLandscape ? Math.max(insets.left, theme.spacing[2]) : Math.max(insets.top, theme.spacing[2]),
+        left: isLandscape ? Math.max(insets.top, theme.spacing[2]) : Math.max(insets.left, theme.spacing[2]),
+        right: Math.max(insets.right, theme.spacing[2]),
+        zIndex: 10,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+      },
+      backButton: {
+        backgroundColor: theme.colors.transparent,
+      },
+      stimulusContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+      },
+      overlay: {
+        position: 'absolute',
+        top: isLandscape ? Math.max(insets.left, 48) : Math.max(insets.top + 8, 48),
+        left: 0,
+        right: 0,
+        zIndex: 5,
+        alignItems: 'center',
+      },
+      controls: {
+        position: 'absolute',
+        bottom: isLandscape ? Math.max(insets.right, theme.spacing[4]) : Math.max(insets.bottom, theme.spacing[4]),
+        left: isLandscape ? Math.max(insets.top, theme.spacing[3]) : theme.spacing[3],
+        right: isLandscape ? Math.max(insets.bottom, theme.spacing[3]) : theme.spacing[3],
+        flexDirection: 'row',
+        justifyContent: 'center',
+        gap: theme.spacing[3],
+        zIndex: 10,
+      },
+      controlButton: {
+        minWidth: 110,
+        paddingHorizontal: theme.spacing[3],
+      },
+    });

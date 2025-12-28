@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, useWindowDimensions } from 'react-native';
 import { SessionState } from '../types';
 
 interface SessionTimerProps {
@@ -17,35 +17,37 @@ export const SessionTimer: React.FC<SessionTimerProps> = ({
   sessionState,
   setDuration,
 }) => {
+  const { width } = useWindowDimensions();
+  const scale = Math.min(1, Math.max(0.8, width / 420));
   const { currentSet, elapsedSessionTime, elapsedSetTime, isResting, remainingRestTime } =
     sessionState;
 
   const setProgress = isResting ? 100 : (elapsedSetTime / setDuration) * 100;
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { padding: Math.round(16 * scale) }]}>
       <View style={styles.infoRow}>
         <View style={styles.infoItem}>
-          <Text style={styles.infoLabel}>Set</Text>
-          <Text style={styles.infoValue}>{currentSet}</Text>
+          <Text style={[styles.infoLabel, { fontSize: Math.round(12 * scale) }]}>Set</Text>
+          <Text style={[styles.infoValue, { fontSize: Math.round(20 * scale) }]}>{currentSet}</Text>
         </View>
         <View style={styles.infoItem}>
-          <Text style={styles.infoLabel}>Session Time</Text>
-          <Text style={styles.infoValue}>{formatTime(elapsedSessionTime)}</Text>
+          <Text style={[styles.infoLabel, { fontSize: Math.round(12 * scale) }]}>Session Time</Text>
+          <Text style={[styles.infoValue, { fontSize: Math.round(20 * scale) }]}>{formatTime(elapsedSessionTime)}</Text>
         </View>
       </View>
 
       {isResting ? (
         <View style={styles.restContainer}>
-          <Text style={styles.restLabel}>Rest Period</Text>
-          <Text style={styles.restTime}>{remainingRestTime}s</Text>
+          <Text style={[styles.restLabel, { fontSize: Math.round(14 * scale) }]}>Rest Period</Text>
+          <Text style={[styles.restTime, { fontSize: Math.round(28 * scale) }]}>{remainingRestTime}s</Text>
         </View>
       ) : (
         <View style={styles.progressContainer}>
           <View style={styles.progressBar}>
             <View style={[styles.progressFill, { width: `${setProgress}%` }]} />
           </View>
-          <Text style={styles.progressText}>
+          <Text style={[styles.progressText, { fontSize: Math.round(12 * scale) }]}> 
             {elapsedSetTime}s / {setDuration}s
           </Text>
         </View>
