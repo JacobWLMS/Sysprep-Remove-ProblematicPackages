@@ -1,0 +1,104 @@
+import React from 'react';
+import { View, StyleSheet, ViewStyle, Pressable } from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+} from 'react-native-reanimated';
+import * as Haptics from 'expo-haptics';
+import { theme } from '../../theme';
+
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+
+export interface CardProps {
+  children: React.ReactNode;
+  variant?: 'default' | 'elevated' | 'outlined';
+  padding?: keyof typeof theme.spacing;
+  onPress?: () => void;
+  style?: ViewStyle;
+  haptic?: boolean;
+  testID?: string;
+}
+
+export const Card: React.FC<CardProps> = ({
+  children,
+  variant = 'default',
+  padding = 4,
+  onPress,
+  style,
+  haptic = true,
+  testID,
+}) => {
+  const scale = useSharedValue(1);
+
+  const handlePressIn = () => {
+    if (onPress) {
+      scale.value = withTiming(0.98, { duration: 100 });
+    }
+  };
+
+  const handlePressOut = () => {
+    if (onPress) {
+      scale.value = withTiming(1, { duration: 100 });
+    }
+  };
+
+  const handlePress = () => {
+    if (onPress) {
+      if (haptic) {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      }
+      onPress();
+    }
+  };
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
+  const cardStyle = [
+    styles.card,
+    styles[variant],
+    { padding: theme.spacing[padding] },
+    style,
+  ];
+
+  if (onPress) {
+    return (
+      <AnimatedPressable
+        style={[animatedStyle, cardStyle]}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        onPress={handlePress}
+        testID={testID}
+      >
+        {children}
+      </AnimatedPressable>
+    );
+  }
+
+  return (
+    <View style={cardStyle} testID={testID}>
+      {children}
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  card: {
+    borderRadius: theme.borderRadius.md,
+    backgroundColor: theme.colors.surface,
+  },
+  default: {
+    backgroundColor: theme.colors.surface,
+  },
+  elevated: {
+    backgroundColor: theme.colors.surfaceLight,
+    ...theme.shadows.md,
+  },
+  outlined: {
+    backgroundColor: theme.colors.transparent,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+});
