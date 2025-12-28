@@ -6,7 +6,12 @@
       "Bash(findstr:*)",
       "Bash(npx expo start:*)",
       "Bash(timeout 10 cmd:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(npm run type-check:*)",
+      "Bash(echo:*)",
+      "Bash(npm uninstall:*)",
+      "Bash(npx expo install:*)",
+      "Bash(npx expo run:android:*)"
     ],
     "deny": [],
     "ask": []
