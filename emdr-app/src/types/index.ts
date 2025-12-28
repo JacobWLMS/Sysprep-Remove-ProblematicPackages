@@ -53,6 +53,22 @@ export interface SessionSummary {
   completedAt: number;
 }
 
+export interface SessionHistory {
+  id: string; // unique ID for each session
+  summary: SessionSummary;
+  settings: BLSSettings; // Settings used for this session
+}
+
+export interface SessionStats {
+  totalSessions: number;
+  averageSUDImprovement: number;
+  successRate: number; // Percentage of sessions with SUD improvement
+  totalDuration: number; // Total therapy time in seconds
+  averageSessionDuration: number;
+  mostRecentSession?: SessionHistory;
+  sudDistribution: { [key: number]: number }; // Count of each SUD level (0-10)
+}
+
 export const DEFAULT_SETTINGS: BLSSettings = {
   visualEnabled: true,
   audioEnabled: true,

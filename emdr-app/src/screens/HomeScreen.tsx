@@ -9,11 +9,13 @@ import { theme } from '../theme';
 interface HomeScreenProps {
   onStartSession: () => void;
   onOpenSettings: () => void;
+  onOpenStats: () => void;
 }
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({
   onStartSession,
   onOpenSettings,
+  onOpenStats,
 }) => {
   return (
     <View style={styles.container}>
@@ -87,6 +89,17 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           style={styles.startButton}
         >
           Start Your Session
+        </Button>
+
+        {/* Stats Button */}
+        <Button
+          variant="secondary"
+          size="large"
+          fullWidth
+          onPress={onOpenStats}
+          icon={<Ionicons name="stats-chart" size={24} color={theme.colors.white} />}
+        >
+          View Your Progress
         </Button>
 
         {/* Settings Button */}

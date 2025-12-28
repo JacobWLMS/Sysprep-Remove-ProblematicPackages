@@ -8,12 +8,14 @@ import { PreSessionSUDScreen } from './src/screens/PreSessionSUDScreen';
 import { SessionScreen } from './src/screens/SessionScreen';
 import { PostSessionSUDScreen } from './src/screens/PostSessionSUDScreen';
 import { SummaryScreen } from './src/screens/SummaryScreen';
+import { StatsScreen } from './src/screens/StatsScreen';
 import { BLSSettings, DEFAULT_SETTINGS, SessionSummary } from './src/types';
-import { loadSettings, saveSettings } from './src/utils/storage';
+import { loadSettings, saveSettings, saveSessionHistory } from './src/utils/storage';
 
 export type RootStackParamList = {
   Home: undefined;
   Settings: undefined;
+  Stats: undefined;
   PreSessionSUD: undefined;
   Session: { preSUD: number };
   PostSessionSUD: { partialSummary: Omit<SessionSummary, 'postSUD'> };
@@ -59,7 +61,14 @@ export default function App() {
               <HomeScreen
                 onStartSession={() => navigation.navigate('PreSessionSUD')}
                 onOpenSettings={() => navigation.navigate('Settings')}
+                onOpenStats={() => navigation.navigate('Stats')}
               />
+            )}
+          </Stack.Screen>
+
+          <Stack.Screen name="Stats">
+            {({ navigation }) => (
+              <StatsScreen onClose={() => navigation.goBack()} />
             )}
           </Stack.Screen>
 
@@ -109,12 +118,19 @@ export default function App() {
           </Stack.Screen>
 
           <Stack.Screen name="Summary">
-            {({ navigation, route }) => (
-              <SummaryScreen
-                summary={route.params.summary}
-                onDone={() => navigation.navigate('Home')}
-              />
-            )}
+            {({ navigation, route }) => {
+              // Save session history when showing summary
+              React.useEffect(() => {
+                saveSessionHistory(route.params.summary, settings);
+              }, [route.params.summary]);
+
+              return (
+                <SummaryScreen
+                  summary={route.params.summary}
+                  onDone={() => navigation.navigate('Home')}
+                />
+              );
+            }}
           </Stack.Screen>
         </Stack.Navigator>
       </NavigationContainer>
