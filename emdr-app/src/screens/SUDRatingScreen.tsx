@@ -4,38 +4,24 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { SUDSlider } from '../components/SUDSlider';
 import { Button } from '../components/ui/Button';
-import { Card } from '../components/ui/Card';
 import { Text } from '../components/ui/Text';
-import { SessionSummary } from '../types';
-import { useTheme, getSUDEmoji } from '../theme';
+import { useTheme } from '../theme';
 
-interface PostSessionSUDScreenProps {
-  partialSummary: Omit<SessionSummary, 'postSUD'>;
-  goal?: string;
-  onContinue: (summary: SessionSummary) => void;
+interface SUDRatingScreenProps {
+  goal: string;
+  onContinue: (sudValue: number) => void;
+  onBack: () => void;
 }
 
-export const PostSessionSUDScreen: React.FC<PostSessionSUDScreenProps> = ({
-  partialSummary,
+export const SUDRatingScreen: React.FC<SUDRatingScreenProps> = ({
   goal,
   onContinue,
+  onBack,
 }) => {
   const { theme } = useTheme();
-  const insets = useSafeAreaInsets();
   const styles = React.useMemo(() => createStyles(theme), [theme]);
+  const insets = useSafeAreaInsets();
   const [sudValue, setSudValue] = useState(5);
-
-  const handleContinue = () => {
-    const summary: SessionSummary = {
-      ...partialSummary,
-      postSUD: {
-        value: sudValue,
-        timestamp: Date.now(),
-        type: 'post',
-      },
-    };
-    onContinue(summary);
-  };
 
   return (
     <View style={styles.container}>
@@ -51,43 +37,56 @@ export const PostSessionSUDScreen: React.FC<PostSessionSUDScreenProps> = ({
           },
         ]}
       >
+        <Button
+          variant="ghost"
+          size="small"
+          onPress={onBack}
+          icon={<Ionicons name="arrow-back" size={20} color={theme.colors.primary} />}
+          style={styles.backButton}
+        >
+          <Text variant="label" color="primary">
+            Back
+          </Text>
+        </Button>
+
         <View style={styles.mainContent}>
           <View>
             <View style={styles.titleContainer}>
-              <Ionicons name="checkmark-circle" size={56} color={theme.colors.success} style={styles.icon} />
+              <View style={[styles.iconCircle, { backgroundColor: theme.colors.primary + '20' }]}>
+                <Ionicons name="heart" size={28} color={theme.colors.primary} />
+              </View>
               <Text variant="h3" align="center" style={styles.title}>
-                Session Complete
+                Rate Your Distress
               </Text>
               <Text variant="bodySmall" color="textSecondary" align="center" style={styles.description}>
-                How do you feel now?
+                How distressing does this feel?
               </Text>
             </View>
 
-            <Card variant="elevated" style={styles.comparisonCard}>
-              <Text variant="caption" color="textSecondary" align="center">
-                Your initial rating
+            <View style={styles.goalReminder}>
+              <Text variant="caption" color="textTertiary" align="center">
+                YOUR FOCUS
               </Text>
-              <View style={styles.comparisonValue}>
-                <Text style={styles.comparisonEmoji}>{getSUDEmoji(partialSummary.preSUD.value)}</Text>
-                <Text variant="h2" style={{ color: theme.colors.primary }}>
-                  {partialSummary.preSUD.value}
-                </Text>
-              </View>
-            </Card>
+              <Text variant="body" color="textPrimary" align="center" style={styles.goalText}>
+                "{goal}"
+              </Text>
+            </View>
 
             <View style={styles.sliderContainer}>
               <SUDSlider value={sudValue} onChange={setSudValue} showLabels={false} showTitle={false} />
             </View>
           </View>
 
-          <Button
-            size="large"
-            fullWidth
-            onPress={handleContinue}
-            icon={<Ionicons name="analytics" size={24} color={theme.colors.white} />}
-          >
-            View Summary
-          </Button>
+          <View style={styles.buttonContainer}>
+            <Button
+              size="large"
+              fullWidth
+              onPress={() => onContinue(sudValue)}
+              icon={<Ionicons name="play-circle" size={24} color={theme.colors.white} />}
+            >
+              Begin Healing
+            </Button>
+          </View>
         </View>
       </ScrollView>
     </View>
@@ -107,39 +106,47 @@ const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
       flexGrow: 1,
       justifyContent: 'space-between',
     },
+    backButton: {
+      alignSelf: 'flex-start',
+      marginBottom: theme.spacing[3],
+    },
     mainContent: {
       flex: 1,
       justifyContent: 'space-between',
     },
     titleContainer: {
-      marginTop: theme.spacing[4],
       alignItems: 'center',
+      gap: theme.spacing[2],
       marginBottom: theme.spacing[3],
     },
-    icon: {
-      marginBottom: theme.spacing[2],
+    iconCircle: {
+      width: 60,
+      height: 60,
+      borderRadius: theme.borderRadius.full,
+      alignItems: 'center',
+      justifyContent: 'center',
     },
     title: {
-      marginBottom: theme.spacing[2],
+      marginTop: theme.spacing[1],
     },
     description: {
       lineHeight: 20,
     },
-    comparisonCard: {
-      alignItems: 'center',
-      paddingVertical: theme.spacing[4],
+    goalReminder: {
+      backgroundColor: theme.colors.surfaceLight,
+      borderRadius: theme.borderRadius.md,
+      padding: theme.spacing[4],
+      gap: theme.spacing[2],
       marginBottom: theme.spacing[3],
     },
-    comparisonValue: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: theme.spacing[2],
-      marginTop: theme.spacing[1],
-    },
-    comparisonEmoji: {
-      fontSize: 40,
+    goalText: {
+      fontStyle: 'italic',
+      lineHeight: 22,
     },
     sliderContainer: {
       paddingVertical: theme.spacing[4],
+    },
+    buttonContainer: {
+      paddingTop: theme.spacing[4],
     },
   });

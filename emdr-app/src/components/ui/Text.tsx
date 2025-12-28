@@ -1,6 +1,7 @@
 import React from 'react';
 import { Text as RNText, TextStyle, StyleSheet } from 'react-native';
-import { theme } from '../../theme';
+import { useTheme } from '../../theme';
+import type { Colors } from '../../theme';
 
 export interface TextProps {
   children: React.ReactNode;
@@ -21,7 +22,7 @@ export interface TextProps {
     | 'labelSmall'
     | 'caption'
     | 'captionBold';
-  color?: keyof typeof theme.colors;
+  color?: keyof Colors;
   align?: 'left' | 'center' | 'right' | 'justify';
   style?: TextStyle;
   numberOfLines?: number;
@@ -37,11 +38,13 @@ export const Text: React.FC<TextProps> = ({
   numberOfLines,
   testID,
 }) => {
-  const textStyle = [
-    theme.typography[variant],
-    { color: theme.colors[color] },
+  const { theme } = useTheme();
+
+  const textStyle: TextStyle[] = [
+    theme.typography[variant] as TextStyle,
+    { color: theme.colors[color] as string },
     { textAlign: align },
-    style,
+    style as TextStyle,
   ];
 
   return (

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
@@ -8,7 +9,7 @@ import { PieChart, PieChartData } from '../components/PieChart';
 import { BarChart, BarChartData } from '../components/BarChart';
 import { SessionHistory, SessionStats } from '../types';
 import { loadSessionHistory, calculateStats } from '../utils/storage';
-import { theme, getSUDColor, getSUDEmoji } from '../theme';
+import { useTheme, getSUDColor, getSUDEmoji } from '../theme';
 
 interface StatsScreenProps {
   onClose: () => void;
@@ -37,6 +38,9 @@ const formatDate = (timestamp: number): string => {
 
 export const StatsScreen: React.FC<StatsScreenProps> = ({ onClose }) => {
   const [history, setHistory] = useState<SessionHistory[]>([]);
+  const { theme } = useTheme();
+  const insets = useSafeAreaInsets();
+  const styles = React.useMemo(() => createStyles(theme), [theme]);
   const [stats, setStats] = useState<SessionStats | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -121,7 +125,7 @@ export const StatsScreen: React.FC<StatsScreenProps> = ({ onClose }) => {
 
   return (
     <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={[styles.content, { paddingTop: Math.max(insets.top, theme.spacing[8]), paddingBottom: Math.max(insets.bottom, theme.spacing[8]) }]} showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
           <Text variant="h2">Your Progress</Text>
@@ -288,126 +292,127 @@ export const StatsScreen: React.FC<StatsScreenProps> = ({ onClose }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
-  },
-  content: {
-    paddingBottom: theme.spacing[8],
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: theme.layout.screenPadding,
-    paddingTop: theme.spacing[12],
-    paddingBottom: theme.spacing[4],
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  emptyState: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: theme.layout.screenPadding,
-    gap: theme.spacing[4],
-  },
-  emptyTitle: {
-    marginTop: theme.spacing[4],
-  },
-  emptyText: {
-    maxWidth: 300,
-    lineHeight: 22,
-  },
-  emptyButton: {
-    marginTop: theme.spacing[4],
-  },
-  statsGrid: {
-    flexDirection: 'row',
-    paddingHorizontal: theme.layout.screenPadding,
-    gap: theme.spacing[4],
-    marginBottom: theme.spacing[6],
-  },
-  statCard: {
-    flex: 1,
-    padding: theme.spacing[5],
-    alignItems: 'center',
-    gap: theme.spacing[2],
-  },
-  chartCard: {
-    marginHorizontal: theme.layout.screenPadding,
-    marginBottom: theme.spacing[6],
-    padding: theme.spacing[6],
-  },
-  chartNote: {
-    marginTop: theme.spacing[4],
-  },
-  improvementCard: {
-    marginHorizontal: theme.layout.screenPadding,
-    marginBottom: theme.spacing[6],
-    padding: theme.spacing[6],
-  },
-  improvementHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing[4],
-    marginBottom: theme.spacing[3],
-  },
-  improvementText: {
-    flex: 1,
-    gap: theme.spacing[1],
-  },
-  improvementNote: {
-    lineHeight: 20,
-  },
-  historySection: {
-    paddingHorizontal: theme.layout.screenPadding,
-  },
-  sectionTitle: {
-    marginBottom: theme.spacing[4],
-  },
-  sessionCard: {
-    padding: theme.spacing[5],
-    marginBottom: theme.spacing[3],
-  },
-  sessionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: theme.spacing[4],
-  },
-  sessionDate: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing[2],
-  },
-  sessionStats: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  sudChange: {
-    alignItems: 'center',
-    gap: theme.spacing[2],
-  },
-  sudValues: {
-    alignItems: 'center',
-    gap: theme.spacing[1],
-  },
-  sudArrow: {
-    marginHorizontal: theme.spacing[3],
-  },
-  sudImprovement: {
-    minWidth: 60,
-    alignItems: 'center',
-  },
-  improvementValue: {
-    fontWeight: 'bold',
-  },
-  bottomSpacing: {
-    height: theme.spacing[8],
-  },
-});
+const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+    },
+    content: {
+      paddingBottom: theme.spacing[8],
+    },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingHorizontal: theme.layout.screenPadding,
+      paddingTop: theme.spacing[12],
+      paddingBottom: theme.spacing[4],
+    },
+    loadingContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    emptyState: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      paddingHorizontal: theme.layout.screenPadding,
+      gap: theme.spacing[4],
+    },
+    emptyTitle: {
+      marginTop: theme.spacing[4],
+    },
+    emptyText: {
+      maxWidth: 300,
+      lineHeight: 22,
+    },
+    emptyButton: {
+      marginTop: theme.spacing[4],
+    },
+    statsGrid: {
+      flexDirection: 'row',
+      paddingHorizontal: theme.layout.screenPadding,
+      gap: theme.spacing[4],
+      marginBottom: theme.spacing[6],
+    },
+    statCard: {
+      flex: 1,
+      padding: theme.spacing[5],
+      alignItems: 'center',
+      gap: theme.spacing[2],
+    },
+    chartCard: {
+      marginHorizontal: theme.layout.screenPadding,
+      marginBottom: theme.spacing[6],
+      padding: theme.spacing[6],
+    },
+    chartNote: {
+      marginTop: theme.spacing[4],
+    },
+    improvementCard: {
+      marginHorizontal: theme.layout.screenPadding,
+      marginBottom: theme.spacing[6],
+      padding: theme.spacing[6],
+    },
+    improvementHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: theme.spacing[4],
+      marginBottom: theme.spacing[3],
+    },
+    improvementText: {
+      flex: 1,
+      gap: theme.spacing[1],
+    },
+    improvementNote: {
+      lineHeight: 20,
+    },
+    historySection: {
+      paddingHorizontal: theme.layout.screenPadding,
+    },
+    sectionTitle: {
+      marginBottom: theme.spacing[4],
+    },
+    sessionCard: {
+      padding: theme.spacing[5],
+      marginBottom: theme.spacing[3],
+    },
+    sessionHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginBottom: theme.spacing[4],
+    },
+    sessionDate: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: theme.spacing[2],
+    },
+    sessionStats: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    sudChange: {
+      alignItems: 'center',
+      gap: theme.spacing[2],
+    },
+    sudValues: {
+      alignItems: 'center',
+      gap: theme.spacing[1],
+    },
+    sudArrow: {
+      marginHorizontal: theme.spacing[3],
+    },
+    sudImprovement: {
+      minWidth: 60,
+      alignItems: 'center',
+    },
+    improvementValue: {
+      fontWeight: 'bold',
+    },
+    bottomSpacing: {
+      height: theme.spacing[8],
+    },
+  });

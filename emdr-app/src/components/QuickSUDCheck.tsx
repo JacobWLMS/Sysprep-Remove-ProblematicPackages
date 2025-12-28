@@ -5,7 +5,7 @@ import Slider from '@react-native-community/slider';
 import { Text } from './ui/Text';
 import { Button } from './ui/Button';
 import { Card } from './ui/Card';
-import { theme, getSUDColor, getSUDEmoji } from '../theme';
+import { useTheme, getSUDColor, getSUDEmoji } from '../theme';
 
 interface QuickSUDCheckProps {
   onSubmit: (value: number) => void;
@@ -18,6 +18,8 @@ export const QuickSUDCheck: React.FC<QuickSUDCheckProps> = ({
   onSkip,
   initialValue = 5,
 }) => {
+  const { theme } = useTheme();
+  const styles = React.useMemo(() => createStyles(theme), [theme]);
   const [value, setValue] = useState(initialValue);
 
   const currentColor = getSUDColor(value);
@@ -35,7 +37,7 @@ export const QuickSUDCheck: React.FC<QuickSUDCheckProps> = ({
         </Text>
 
         <View style={styles.emojiContainer}>
-          <Text style={[styles.emoji]}>{currentEmoji}</Text>
+          <Text style={styles.emoji}>{currentEmoji}</Text>
           <Text variant="h2" style={{ color: currentColor }}>
             {value}
           </Text>
@@ -75,43 +77,44 @@ export const QuickSUDCheck: React.FC<QuickSUDCheckProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    position: 'absolute',
-    top: '50%',
-    left: theme.spacing[5],
-    right: theme.spacing[5],
-    transform: [{ translateY: -120 }],
-    zIndex: 100,
-  },
-  card: {
-    paddingVertical: theme.spacing[6],
-  },
-  title: {
-    marginBottom: theme.spacing[4],
-  },
-  emojiContainer: {
-    alignItems: 'center',
-    marginBottom: theme.spacing[4],
-  },
-  emoji: {
-    fontSize: 48,
-    marginBottom: theme.spacing[2],
-  },
-  slider: {
-    width: '100%',
-    height: 40,
-    marginBottom: theme.spacing[4],
-  },
-  buttons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: theme.spacing[3],
-  },
-  skipButton: {
-    flex: 1,
-  },
-  submitButton: {
-    flex: 2,
-  },
-});
+const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
+  StyleSheet.create({
+    container: {
+      position: 'absolute',
+      top: '50%',
+      left: theme.spacing[5],
+      right: theme.spacing[5],
+      transform: [{ translateY: -120 }],
+      zIndex: 100,
+    },
+    card: {
+      paddingVertical: theme.spacing[6],
+    },
+    title: {
+      marginBottom: theme.spacing[4],
+    },
+    emojiContainer: {
+      alignItems: 'center',
+      marginBottom: theme.spacing[4],
+    },
+    emoji: {
+      fontSize: 48,
+      marginBottom: theme.spacing[2],
+    },
+    slider: {
+      width: '100%',
+      height: 40,
+      marginBottom: theme.spacing[4],
+    },
+    buttons: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      gap: theme.spacing[3],
+    },
+    skipButton: {
+      flex: 1,
+    },
+    submitButton: {
+      flex: 2,
+    },
+  });

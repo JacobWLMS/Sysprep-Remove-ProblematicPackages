@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import * as ScreenOrientation from 'expo-screen-orientation';
@@ -8,16 +9,20 @@ import { AudioEngine } from '../components/AudioEngine';
 import { HapticEngine } from '../components/HapticEngine';
 import { SessionTimer } from '../components/SessionTimer';
 import { QuickSUDCheck } from '../components/QuickSUDCheck';
+import { GoalReminder } from '../components/GoalReminder';
+import { SessionInstructions } from '../components/SessionInstructions';
+import { PreSessionCountdown } from '../components/PreSessionCountdown';
 import { Button } from '../components/ui/Button';
 import { Text } from '../components/ui/Text';
 import { useBilateralStimulation, StimulationSide } from '../hooks/useBilateralStimulation';
 import { useSessionTimer } from '../hooks/useSessionTimer';
 import { BLSSettings, SessionSummary, SUDRating } from '../types';
-import { theme } from '../theme';
+import { useTheme } from '../theme';
 
 interface SessionScreenProps {
   settings: BLSSettings;
   preSUD: number;
+  goal?: string;
   onSessionComplete: (summary: Omit<SessionSummary, 'postSUD'>) => void;
   onBack: () => void;
 }
@@ -25,13 +30,20 @@ interface SessionScreenProps {
 export const SessionScreen: React.FC<SessionScreenProps> = ({
   settings,
   preSUD,
+  goal,
   onSessionComplete,
   onBack,
 }) => {
+  const { theme } = useTheme();
+  const insets = useSafeAreaInsets();
+  const styles = React.useMemo(() => createStyles(theme, insets), [theme, insets]);
   const [currentSide, setCurrentSide] = React.useState<StimulationSide>('left');
   const [midSUDs, setMidSUDs] = useState<SUDRating[]>([]);
   const [showSUDCheck, setShowSUDCheck] = useState(false);
+  const [showGoalReminder, setShowGoalReminder] = useState(false);
   const [hasShownSUDForSet, setHasShownSUDForSet] = useState(false);
+  const [showInstructions, setShowInstructions] = useState(true);
+  const [showCountdown, setShowCountdown] = useState(false);
 
   const {
     sessionState,
@@ -50,15 +62,33 @@ export const SessionScreen: React.FC<SessionScreenProps> = ({
     setCurrentSide(side);
   }, []);
 
+  // Only use the bilateral stimulation hook if visual is disabled
+  // When visual is enabled, it will drive the timing via callbacks for perfect sync
   const { currentSide: blsSide } = useBilateralStimulation({
-    isActive: sessionState.isActive && !sessionState.isPaused && !sessionState.isResting,
+    isActive: !settings.visualEnabled && sessionState.isActive && !sessionState.isPaused && !sessionState.isResting,
     speed: settings.speed,
     onTrigger: handleTrigger,
   });
 
   useEffect(() => {
-    setCurrentSide(blsSide);
-  }, [blsSide]);
+    // Only sync from hook if visual is disabled
+    if (!settings.visualEnabled) {
+      setCurrentSide(blsSide);
+    }
+  }, [blsSide, settings.visualEnabled]);
+
+  // Show goal reminder during rest periods (if goal exists)
+  useEffect(() => {
+    if (goal && sessionState.isResting && sessionState.currentSet > 0 && sessionState.currentSet % 3 === 0) {
+      // Show goal reminder 1 second into rest period, every 3rd set
+      const timer = setTimeout(() => {
+        setShowGoalReminder(true);
+      }, 1000);
+      return () => clearTimeout(timer);
+    } else if (!sessionState.isResting) {
+      setShowGoalReminder(false);
+    }
+  }, [sessionState.isResting, sessionState.currentSet, goal]);
 
   // Show quick SUD check during rest periods
   useEffect(() => {
@@ -86,18 +116,21 @@ export const SessionScreen: React.FC<SessionScreenProps> = ({
     lockOrientation();
 
     return () => {
-      // Unlock orientation and allow sleep when leaving
-      ScreenOrientation.unlockAsync();
+      // Explicitly lock back to portrait and allow sleep when leaving
+      ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
       deactivateKeepAwake();
     };
   }, []);
 
-  useEffect(() => {
-    // Auto-start session
-    if (!sessionState.isActive && sessionState.currentSet === 0) {
-      startSession();
-    }
-  }, []);
+  const handleInstructionsContinue = () => {
+    setShowInstructions(false);
+    setShowCountdown(true);
+  };
+
+  const handleCountdownComplete = () => {
+    setShowCountdown(false);
+    startSession();
+  };
 
   const handleTogglePause = () => {
     if (sessionState.isPaused) {
@@ -168,6 +201,7 @@ export const SessionScreen: React.FC<SessionScreenProps> = ({
             speed={settings.speed}
             dotColor={settings.dotColor}
             dotSize={settings.dotSize}
+            onSideTrigger={handleTrigger}
           />
         )}
       </View>
@@ -198,6 +232,11 @@ export const SessionScreen: React.FC<SessionScreenProps> = ({
         />
       </View>
 
+      {/* Goal Reminder */}
+      {showGoalReminder && goal && (
+        <GoalReminder goal={goal} onDismiss={() => setShowGoalReminder(false)} />
+      )}
+
       {/* Quick SUD Check */}
       {showSUDCheck && (
         <QuickSUDCheck
@@ -205,6 +244,19 @@ export const SessionScreen: React.FC<SessionScreenProps> = ({
           onSkip={handleSUDSkip}
           initialValue={midSUDs.length > 0 ? midSUDs[midSUDs.length - 1].value : preSUD}
         />
+      )}
+
+      {/* Instructions Overlay */}
+      {showInstructions && (
+        <SessionInstructions
+          onContinue={handleInstructionsContinue}
+          settings={settings}
+        />
+      )}
+
+      {/* Countdown Overlay */}
+      {showCountdown && (
+        <PreSessionCountdown onComplete={handleCountdownComplete} />
       )}
 
       {/* Control Buttons */}
@@ -228,7 +280,7 @@ export const SessionScreen: React.FC<SessionScreenProps> = ({
           variant="primary"
           onPress={handleStop}
           icon={<Ionicons name="stop" size={20} color={theme.colors.white} />}
-          style={[styles.controlButton, { backgroundColor: theme.colors.error }]}
+          style={{ ...styles.controlButton, backgroundColor: theme.colors.error }}
         >
           Stop
         </Button>
@@ -237,48 +289,57 @@ export const SessionScreen: React.FC<SessionScreenProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.colors.black,
-  },
-  header: {
-    position: 'absolute',
-    top: theme.spacing[5],
-    left: theme.spacing[5],
-    right: theme.spacing[5],
-    zIndex: 10,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  backButton: {
-    backgroundColor: theme.colors.transparent,
-  },
-  stimulusContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  overlay: {
-    position: 'absolute',
-    top: 80,
-    left: 0,
-    right: 0,
-    zIndex: 5,
-  },
-  controls: {
-    position: 'absolute',
-    bottom: theme.spacing[10],
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: theme.spacing[4],
-    paddingHorizontal: theme.spacing[5],
-    zIndex: 10,
-  },
-  controlButton: {
-    minWidth: 140,
-  },
-});
+const createStyles = (
+  theme: ReturnType<typeof useTheme>['theme'],
+  insets: ReturnType<typeof useSafeAreaInsets>
+) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+    },
+    header: {
+      position: 'absolute',
+      // In landscape, use horizontal insets as top/left/right
+      top: Math.max(insets.left, theme.spacing[3]),
+      left: Math.max(insets.top, theme.spacing[3]),
+      right: Math.max(insets.right, theme.spacing[3]),
+      zIndex: 10,
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    backButton: {
+      backgroundColor: theme.colors.transparent,
+    },
+    stimulusContainer: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 100, // Leave space for controls at bottom
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    overlay: {
+      position: 'absolute',
+      top: Math.max(insets.left, 60), // In landscape, left becomes top
+      left: 0,
+      right: 0,
+      zIndex: 5,
+    },
+    controls: {
+      position: 'absolute',
+      // In landscape, use right inset as bottom
+      bottom: Math.max(insets.right, theme.spacing[5]),
+      left: Math.max(insets.top, theme.spacing[5]),
+      right: Math.max(insets.bottom, theme.spacing[5]),
+      flexDirection: 'row',
+      justifyContent: 'center',
+      gap: theme.spacing[4],
+      zIndex: 10,
+    },
+    controlButton: {
+      minWidth: 140,
+    },
+  });

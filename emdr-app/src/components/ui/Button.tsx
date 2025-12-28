@@ -15,7 +15,7 @@ import Animated, {
   withTiming,
   withSequence,
 } from 'react-native-reanimated';
-import { theme } from '../../theme';
+import { useTheme } from '../../theme';
 
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 
@@ -48,6 +48,8 @@ export const Button: React.FC<ButtonProps> = ({
   style,
   testID,
 }) => {
+  const { theme } = useTheme();
+  const styles = React.useMemo(() => createStyles(theme), [theme]);
   const scale = useSharedValue(1);
 
   const handlePressIn = () => {
@@ -120,112 +122,116 @@ export const Button: React.FC<ButtonProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
-  button: {
-    borderRadius: theme.borderRadius.lg,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexDirection: 'row',
-  },
-  content: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  icon: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  iconLeft: {
-    marginRight: theme.spacing[2],
-  },
-  iconRight: {
-    marginLeft: theme.spacing[2],
-  },
+const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
+  StyleSheet.create({
+    button: {
+      borderRadius: theme.borderRadius.lg,
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexDirection: 'row',
+    },
+    content: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    icon: {
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    iconLeft: {
+      marginRight: theme.spacing[2],
+    },
+    iconRight: {
+      marginLeft: theme.spacing[2],
+    },
 
-  // Variants
-  primary: {
-    backgroundColor: theme.colors.primary,
-    ...theme.shadows.md,
-  },
-  secondary: {
-    backgroundColor: theme.colors.secondary,
-    ...theme.shadows.md,
-  },
-  outline: {
-    backgroundColor: theme.colors.transparent,
-    borderWidth: 2,
-    borderColor: theme.colors.primary,
-  },
-  ghost: {
-    backgroundColor: theme.colors.transparent,
-  },
+    // Variants
+    primary: {
+      backgroundColor: theme.colors.primary,
+      ...theme.shadows.md,
+    },
+    secondary: {
+      backgroundColor: theme.colors.secondary,
+      ...theme.shadows.md,
+    },
+    outline: {
+      backgroundColor: theme.colors.transparent,
+      borderWidth: 2,
+      borderColor: theme.colors.primary,
+    },
+    ghost: {
+      backgroundColor: theme.colors.transparent,
+    },
 
-  // Sizes
-  small: {
-    paddingVertical: theme.spacing[2],
-    paddingHorizontal: theme.spacing[4],
-    minHeight: 36,
-  },
-  medium: {
-    paddingVertical: theme.spacing[3],
-    paddingHorizontal: theme.spacing[6],
-    minHeight: 48,
-  },
-  large: {
-    paddingVertical: theme.spacing[4],
-    paddingHorizontal: theme.spacing[8],
-    minHeight: 56,
-  },
+    // Sizes
+    small: {
+      paddingVertical: theme.spacing[2],
+      paddingHorizontal: theme.spacing[4],
+      minHeight: 36,
+    },
+    medium: {
+      paddingVertical: theme.spacing[3],
+      paddingHorizontal: theme.spacing[6],
+      minHeight: 48,
+    },
+    large: {
+      paddingVertical: theme.spacing[4],
+      paddingHorizontal: theme.spacing[8],
+      minHeight: 56,
+    },
 
-  // Full width
-  fullWidth: {
-    width: '100%',
-  },
+    // Full width
+    fullWidth: {
+      width: '100%',
+    },
 
-  // Disabled states
-  disabled: {
-    opacity: 0.5,
-  },
-  primaryDisabled: {
-    backgroundColor: theme.colors.textDisabled,
-  },
-  secondaryDisabled: {
-    backgroundColor: theme.colors.textDisabled,
-  },
-  outlineDisabled: {
-    borderColor: theme.colors.textDisabled,
-  },
+    // Disabled states
+    disabled: {
+      opacity: 0.5,
+    },
+    primaryDisabled: {
+      backgroundColor: theme.colors.textDisabled,
+    },
+    secondaryDisabled: {
+      backgroundColor: theme.colors.textDisabled,
+    },
+    outlineDisabled: {
+      borderColor: theme.colors.textDisabled,
+    },
+    ghostDisabled: {
+      backgroundColor: theme.colors.transparent,
+    },
 
-  // Text styles
-  text: {
-    ...theme.typography.button,
-    textAlign: 'center',
-  },
-  primaryText: {
-    color: theme.colors.white,
-  },
-  secondaryText: {
-    color: theme.colors.white,
-  },
-  outlineText: {
-    color: theme.colors.primary,
-  },
-  ghostText: {
-    color: theme.colors.primary,
-  },
-  disabledText: {
-    color: theme.colors.textTertiary,
-  },
+    // Text styles
+    text: {
+      ...theme.typography.button,
+      textAlign: 'center',
+    },
+    primaryText: {
+      color: theme.colors.white,
+    },
+    secondaryText: {
+      color: theme.colors.white,
+    },
+    outlineText: {
+      color: theme.colors.primary,
+    },
+    ghostText: {
+      color: theme.colors.primary,
+    },
+    disabledText: {
+      color: theme.colors.textTertiary,
+    },
 
-  // Text size overrides
-  smallText: {
-    ...theme.typography.buttonSmall,
-  },
-  mediumText: {
-    ...theme.typography.button,
-  },
-  largeText: {
-    ...theme.typography.buttonLarge,
-  },
-});
+    // Text size overrides
+    smallText: {
+      ...theme.typography.buttonSmall,
+    },
+    mediumText: {
+      ...theme.typography.button,
+    },
+    largeText: {
+      ...theme.typography.buttonLarge,
+    },
+  });

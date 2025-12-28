@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { View, StyleSheet, Animated, Dimensions } from 'react-native';
 import Svg, { Line, Circle, Path, Text as SVGText, G } from 'react-native-svg';
-import { theme, getSUDColor, getSUDEmoji } from '../theme';
+import { useTheme, getSUDColor, getSUDEmoji } from '../theme';
 import { Text } from './ui/Text';
 import { SUDRating } from '../types';
 
@@ -22,6 +22,8 @@ export const SUDGraph: React.FC<SUDGraphProps> = ({
   width = Dimensions.get('window').width - 64,
   height = 200,
 }) => {
+  const { theme } = useTheme();
+  const styles = React.useMemo(() => createStyles(theme), [theme]);
   const animationProgress = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -220,28 +222,29 @@ export const SUDGraph: React.FC<SUDGraphProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    width: '100%',
-  },
-  header: {
-    marginBottom: theme.spacing[4],
-  },
-  graphContainer: {
-    alignItems: 'center',
-    marginBottom: theme.spacing[6],
-  },
-  summary: {
-    alignItems: 'center',
-  },
-  changeCard: {
-    paddingVertical: theme.spacing[4],
-    paddingHorizontal: theme.spacing[6],
-    borderRadius: theme.borderRadius.lg,
-    alignItems: 'center',
-    minWidth: 200,
-  },
-  changeLabel: {
-    marginTop: theme.spacing[2],
-  },
-});
+const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
+  StyleSheet.create({
+    container: {
+      width: '100%',
+    },
+    header: {
+      marginBottom: theme.spacing[4],
+    },
+    graphContainer: {
+      alignItems: 'center',
+      marginBottom: theme.spacing[6],
+    },
+    summary: {
+      alignItems: 'center',
+    },
+    changeCard: {
+      paddingVertical: theme.spacing[4],
+      paddingHorizontal: theme.spacing[6],
+      borderRadius: theme.borderRadius.lg,
+      alignItems: 'center',
+      minWidth: 200,
+    },
+    changeLabel: {
+      marginTop: theme.spacing[2],
+    },
+  });

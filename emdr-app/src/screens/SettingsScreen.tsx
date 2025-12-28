@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, ScrollView, StyleSheet, Switch } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import Slider from '@react-native-community/slider';
@@ -8,7 +9,7 @@ import { Card } from '../components/ui/Card';
 import { Text } from '../components/ui/Text';
 import { AudioEngine } from '../components/AudioEngine';
 import { BLSSettings, DOT_COLORS } from '../types';
-import { theme } from '../theme';
+import { useTheme } from '../theme';
 
 interface SettingsScreenProps {
   settings: BLSSettings;
@@ -46,8 +47,12 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   onSettingsChange,
   onClose,
 }) => {
+  const { theme, mode, toggleTheme } = useTheme();
   const [testingAudio, setTestingAudio] = useState(false);
+  const insets = useSafeAreaInsets();
   const [audioEngineRef, setAudioEngineRef] = useState<any>(null);
+
+  const styles = React.useMemo(() => createStyles(theme), [theme]);
 
   const updateSetting = <K extends keyof BLSSettings>(
     key: K,
@@ -96,11 +101,9 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
       {/* Hidden AudioEngine for testing */}
       <View style={{ height: 0, overflow: 'hidden' }}>
         <AudioEngine
-          ref={(ref) => setAudioEngineRef(ref)}
           enabled={settings.audioEnabled}
+          side="left"
           volume={settings.audioVolume}
-          frequency={settings.speed}
-          onTrigger={() => {}}
         />
       </View>
 
@@ -117,7 +120,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
         </Button>
       </View>
 
-      <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
+      <ScrollView style={styles.scrollView} contentContainerStyle={[styles.content, { paddingTop: Math.max(insets.top, theme.spacing[8]), paddingBottom: Math.max(insets.bottom, theme.spacing[8]) }]}>
         {/* Presets */}
         <Card variant="elevated" style={styles.section}>
           <View style={styles.sectionHeader}>
@@ -139,6 +142,41 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                 {preset.label}
               </Button>
             ))}
+          </View>
+        </Card>
+
+        {/* Appearance */}
+        <Card variant="elevated" style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Ionicons name="contrast-outline" size={24} color={theme.colors.primary} />
+            <Text variant="h4" style={styles.sectionTitle}>
+              Appearance
+            </Text>
+          </View>
+
+          <View style={styles.settingRow}>
+            <View style={styles.settingLabelContainer}>
+              <Ionicons
+                name={mode === 'dark' ? 'moon' : 'sunny'}
+                size={20}
+                color={theme.colors.textSecondary}
+              />
+              <View>
+                <Text variant="body">Theme</Text>
+                <Text variant="caption" color="textTertiary">
+                  {mode === 'dark' ? 'Dark mode' : 'Light mode'}
+                </Text>
+              </View>
+            </View>
+            <Switch
+              value={mode === 'dark'}
+              onValueChange={() => {
+                toggleTheme();
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+              }}
+              trackColor={{ false: theme.colors.border, true: theme.colors.primary }}
+              thumbColor={theme.colors.white}
+            />
           </View>
         </Card>
 
@@ -242,11 +280,11 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                   key={color.value}
                   variant="ghost"
                   onPress={() => updateSetting('dotColor', color.value)}
-                  style={[
-                    styles.colorSwatch,
-                    { backgroundColor: color.value },
-                    settings.dotColor === color.value && styles.colorSwatchSelected,
-                  ]}
+                  style={
+                    settings.dotColor === color.value
+                      ? { ...styles.colorSwatch, backgroundColor: color.value, ...styles.colorSwatchSelected }
+                      : { ...styles.colorSwatch, backgroundColor: color.value }
+                  }
                 >
                   {settings.dotColor === color.value && (
                     <Ionicons name="checkmark" size={24} color={theme.colors.white} />
@@ -440,120 +478,121 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: theme.layout.screenPadding,
-    paddingTop: theme.spacing[12],
-    paddingBottom: theme.spacing[4],
-  },
-  scrollView: {
-    flex: 1,
-  },
-  content: {
-    paddingHorizontal: theme.layout.screenPadding,
-    paddingBottom: theme.spacing[10],
-    gap: theme.spacing[4],
-  },
-  section: {
-    marginBottom: theme.spacing[4],
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing[2],
-    marginBottom: theme.spacing[4],
-  },
-  sectionTitle: {
-    flex: 1,
-  },
-  subsectionTitle: {
-    marginTop: theme.spacing[4],
-    marginBottom: theme.spacing[2],
-  },
-  settingRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: theme.spacing[3],
-  },
-  settingLabelContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing[2],
-  },
-  slider: {
-    width: '100%',
-    height: 40,
-  },
-  valueLabel: {
-    marginBottom: theme.spacing[2],
-  },
-  rangeLabels: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: theme.spacing[1],
-  },
-  colorPalette: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: theme.spacing[3],
-    marginTop: theme.spacing[2],
-  },
-  colorSwatch: {
-    width: 56,
-    height: 56,
-    borderRadius: theme.borderRadius.full,
-    borderWidth: 2,
-    borderColor: 'transparent',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  colorSwatchSelected: {
-    borderColor: theme.colors.white,
-    borderWidth: 3,
-  },
-  intensityButtons: {
-    flexDirection: 'row',
-    gap: theme.spacing[3],
-    marginTop: theme.spacing[2],
-  },
-  intensityButton: {
-    flex: 1,
-  },
-  presetButtons: {
-    flexDirection: 'row',
-    gap: theme.spacing[3],
-  },
-  presetButton: {
-    flex: 1,
-  },
-  audioTestButton: {
-    marginTop: theme.spacing[4],
-  },
-  audioTestHint: {
-    marginTop: theme.spacing[2],
-  },
-  infoBox: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    backgroundColor: theme.colors.primary10,
-    padding: theme.spacing[4],
-    borderRadius: theme.borderRadius.md,
-    marginTop: theme.spacing[4],
-  },
-  infoIcon: {
-    marginRight: theme.spacing[2],
-    marginTop: 2,
-  },
-  infoText: {
-    flex: 1,
-    lineHeight: 18,
-  },
-});
+const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+    },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingHorizontal: theme.layout.screenPadding,
+      paddingTop: theme.spacing[12],
+      paddingBottom: theme.spacing[4],
+    },
+    scrollView: {
+      flex: 1,
+    },
+    content: {
+      paddingHorizontal: theme.layout.screenPadding,
+      paddingBottom: theme.spacing[10],
+      gap: theme.spacing[4],
+    },
+    section: {
+      marginBottom: theme.spacing[4],
+    },
+    sectionHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: theme.spacing[2],
+      marginBottom: theme.spacing[4],
+    },
+    sectionTitle: {
+      flex: 1,
+    },
+    subsectionTitle: {
+      marginTop: theme.spacing[4],
+      marginBottom: theme.spacing[2],
+    },
+    settingRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingVertical: theme.spacing[3],
+    },
+    settingLabelContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: theme.spacing[2],
+    },
+    slider: {
+      width: '100%',
+      height: 40,
+    },
+    valueLabel: {
+      marginBottom: theme.spacing[2],
+    },
+    rangeLabels: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginTop: theme.spacing[1],
+    },
+    colorPalette: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: theme.spacing[3],
+      marginTop: theme.spacing[2],
+    },
+    colorSwatch: {
+      width: 56,
+      height: 56,
+      borderRadius: theme.borderRadius.full,
+      borderWidth: 2,
+      borderColor: 'transparent',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    colorSwatchSelected: {
+      borderColor: theme.colors.white,
+      borderWidth: 3,
+    },
+    intensityButtons: {
+      flexDirection: 'row',
+      gap: theme.spacing[3],
+      marginTop: theme.spacing[2],
+    },
+    intensityButton: {
+      flex: 1,
+    },
+    presetButtons: {
+      flexDirection: 'row',
+      gap: theme.spacing[3],
+    },
+    presetButton: {
+      flex: 1,
+    },
+    audioTestButton: {
+      marginTop: theme.spacing[4],
+    },
+    audioTestHint: {
+      marginTop: theme.spacing[2],
+    },
+    infoBox: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      backgroundColor: theme.colors.primary10,
+      padding: theme.spacing[4],
+      borderRadius: theme.borderRadius.md,
+      marginTop: theme.spacing[4],
+    },
+    infoIcon: {
+      marginRight: theme.spacing[2],
+      marginTop: 2,
+    },
+    infoText: {
+      flex: 1,
+      lineHeight: 18,
+    },
+  });

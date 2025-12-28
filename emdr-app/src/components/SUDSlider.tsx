@@ -2,9 +2,8 @@ import React, { useRef, useEffect } from 'react';
 import { View, StyleSheet, Animated } from 'react-native';
 import Slider from '@react-native-community/slider';
 import * as Haptics from 'expo-haptics';
-import { SUD_SCALE, getSUDColor, getSUDEmoji } from '../theme';
+import { SUD_SCALE, getSUDColor, getSUDEmoji, useTheme } from '../theme';
 import { Text } from './ui/Text';
-import { theme } from '../theme';
 
 interface SUDSliderProps {
   value: number;
@@ -19,6 +18,8 @@ export const SUDSlider: React.FC<SUDSliderProps> = ({
   showLabels = true,
   showTitle = true,
 }) => {
+  const { theme } = useTheme();
+  const styles = React.useMemo(() => createStyles(theme), [theme]);
   const prevValue = useRef(value);
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const colorAnim = useRef(new Animated.Value(0)).current;
@@ -106,20 +107,22 @@ export const SUDSlider: React.FC<SUDSliderProps> = ({
                 <View key={val} style={styles.scaleItem}>
                   <Text
                     variant="h3"
-                    style={[
-                      styles.scaleEmoji,
-                      isActive && styles.scaleEmojiActive,
-                    ]}
+                    style={
+                      isActive
+                        ? { ...styles.scaleEmoji, ...styles.scaleEmojiActive }
+                        : styles.scaleEmoji
+                    }
                   >
                     {scaleData.emoji}
                   </Text>
                   <Text
                     variant="captionBold"
                     color="textTertiary"
-                    style={[
-                      styles.scaleValue,
-                      isActive && { color: scaleData.color },
-                    ]}
+                    style={
+                      isActive
+                        ? { ...styles.scaleValue, color: scaleData.color }
+                        : styles.scaleValue
+                    }
                   >
                     {val}
                   </Text>
@@ -152,73 +155,74 @@ export const SUDSlider: React.FC<SUDSliderProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    width: '100%',
-  },
-  title: {
-    marginBottom: theme.spacing[6],
-  },
-  emojiContainer: {
-    alignItems: 'center',
-    marginBottom: theme.spacing[6],
-  },
-  emoji: {
-    fontSize: 80,
-    marginBottom: theme.spacing[3],
-  },
-  valueRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: theme.spacing[2],
-  },
-  label: {
-    marginTop: theme.spacing[1],
-  },
-  sliderContainer: {
-    width: '100%',
-    marginBottom: theme.spacing[6],
-    paddingHorizontal: theme.spacing[2],
-  },
-  slider: {
-    width: '100%',
-    height: 48,
-  },
-  scaleContainer: {
-    width: '100%',
-  },
-  scaleRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: theme.spacing[3],
-  },
-  scaleItem: {
-    alignItems: 'center',
-    minWidth: 40,
-  },
-  scaleEmoji: {
-    fontSize: 24,
-    opacity: 0.4,
-    marginBottom: theme.spacing[1],
-  },
-  scaleEmojiActive: {
-    opacity: 1,
-  },
-  scaleValue: {
-    fontSize: theme.fontSizes.xs,
-  },
-  gradientContainer: {
-    flexDirection: 'row',
-    height: 8,
-    borderRadius: theme.borderRadius.sm,
-    overflow: 'hidden',
-    marginBottom: theme.spacing[2],
-  },
-  gradientSection: {
-    flex: 1,
-  },
-  labelsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-});
+const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
+  StyleSheet.create({
+    container: {
+      width: '100%',
+    },
+    title: {
+      marginBottom: theme.spacing[6],
+    },
+    emojiContainer: {
+      alignItems: 'center',
+      marginBottom: theme.spacing[6],
+    },
+    emoji: {
+      fontSize: 80,
+      marginBottom: theme.spacing[3],
+    },
+    valueRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: theme.spacing[2],
+    },
+    label: {
+      marginTop: theme.spacing[1],
+    },
+    sliderContainer: {
+      width: '100%',
+      marginBottom: theme.spacing[6],
+      paddingHorizontal: theme.spacing[2],
+    },
+    slider: {
+      width: '100%',
+      height: 48,
+    },
+    scaleContainer: {
+      width: '100%',
+    },
+    scaleRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginBottom: theme.spacing[3],
+    },
+    scaleItem: {
+      alignItems: 'center',
+      minWidth: 40,
+    },
+    scaleEmoji: {
+      fontSize: 24,
+      opacity: 0.4,
+      marginBottom: theme.spacing[1],
+    },
+    scaleEmojiActive: {
+      opacity: 1,
+    },
+    scaleValue: {
+      fontSize: theme.fontSizes.xs,
+    },
+    gradientContainer: {
+      flexDirection: 'row',
+      height: 8,
+      borderRadius: theme.borderRadius.sm,
+      overflow: 'hidden',
+      marginBottom: theme.spacing[2],
+    },
+    gradientSection: {
+      flex: 1,
+    },
+    labelsRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+    },
+  });

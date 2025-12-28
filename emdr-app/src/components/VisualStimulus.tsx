@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { StyleSheet, useWindowDimensions } from 'react-native';
 import Animated, {
   useSharedValue,
@@ -8,13 +8,16 @@ import Animated, {
   withTiming,
   Easing,
   cancelAnimation,
+  runOnJS,
 } from 'react-native-reanimated';
+import type { StimulationSide } from '../hooks/useBilateralStimulation';
 
 interface VisualStimulusProps {
   isActive: boolean;
   speed: number; // Hz (cycles per second)
   dotColor: string;
   dotSize: number;
+  onSideTrigger?: (side: StimulationSide) => void;
 }
 
 const HORIZONTAL_PADDING = 40;
@@ -24,6 +27,7 @@ export const VisualStimulus: React.FC<VisualStimulusProps> = ({
   speed,
   dotColor,
   dotSize,
+  onSideTrigger,
 }) => {
   const { width } = useWindowDimensions();
   const position = useSharedValue(0);
@@ -39,21 +43,48 @@ export const VisualStimulus: React.FC<VisualStimulusProps> = ({
 
   const maxPosition = width - (HORIZONTAL_PADDING * 2) - dotSize;
 
+  // Stable callback for triggering side changes
+  const triggerSide = useCallback((side: StimulationSide) => {
+    onSideTrigger?.(side);
+  }, [onSideTrigger]);
+
   useEffect(() => {
     if (isActive) {
-      // Start animation from current position
+      // Trigger 'left' immediately when animation starts
+      triggerSide('left');
+
+      // Start animation from left position (0)
+      position.value = 0;
       position.value = withRepeat(
         withSequence(
           // Move from left (0) to right (maxPosition)
-          withTiming(maxPosition, {
-            duration: halfCycleDuration,
-            easing: Easing.inOut(Easing.ease),
-          }),
+          withTiming(
+            maxPosition,
+            {
+              duration: halfCycleDuration,
+              easing: Easing.inOut(Easing.ease),
+            },
+            (finished) => {
+              // Trigger 'right' when we reach the right side
+              if (finished && onSideTrigger) {
+                runOnJS(triggerSide)('right');
+              }
+            }
+          ),
           // Move from right back to left
-          withTiming(0, {
-            duration: halfCycleDuration,
-            easing: Easing.inOut(Easing.ease),
-          })
+          withTiming(
+            0,
+            {
+              duration: halfCycleDuration,
+              easing: Easing.inOut(Easing.ease),
+            },
+            (finished) => {
+              // Trigger 'left' when we reach the left side
+              if (finished && onSideTrigger) {
+                runOnJS(triggerSide)('left');
+              }
+            }
+          )
         ),
         -1, // Infinite repeat
         false // Don't reverse (we're using sequence)
@@ -64,7 +95,7 @@ export const VisualStimulus: React.FC<VisualStimulusProps> = ({
       // Reset to center
       position.value = withTiming(maxPosition / 2, { duration: 300 });
     }
-  }, [isActive, speed, maxPosition]);
+  }, [isActive, speed, maxPosition, halfCycleDuration, triggerSide]);
 
   const animatedStyle = useAnimatedStyle(() => {
     return {
