@@ -29,7 +29,6 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-keep-awake",
       "expo-screen-orientation"
     ]
   }
