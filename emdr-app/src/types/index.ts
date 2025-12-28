@@ -51,12 +51,14 @@ export interface SessionSummary {
   totalDuration: number; // seconds
   totalSets: number;
   completedAt: number;
+  goal?: string; // Optional goal/intention for the session
 }
 
 export interface SessionHistory {
   id: string; // unique ID for each session
   summary: SessionSummary;
   settings: BLSSettings; // Settings used for this session
+  goal?: string; // Session goal/intention
 }
 
 export interface SessionStats {

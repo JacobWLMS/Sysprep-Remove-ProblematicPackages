@@ -17,8 +17,8 @@ export type RootStackParamList = {
   Settings: undefined;
   Stats: undefined;
   PreSessionSUD: undefined;
-  Session: { preSUD: number };
-  PostSessionSUD: { partialSummary: Omit<SessionSummary, 'postSUD'> };
+  Session: { preSUD: number; goal?: string };
+  PostSessionSUD: { partialSummary: Omit<SessionSummary, 'postSUD'>; goal?: string };
   Summary: { summary: SessionSummary };
 };
 
@@ -85,8 +85,8 @@ export default function App() {
           <Stack.Screen name="PreSessionSUD">
             {({ navigation }) => (
               <PreSessionSUDScreen
-                onContinue={(sudValue) =>
-                  navigation.navigate('Session', { preSUD: sudValue })
+                onContinue={(sudValue, goal) =>
+                  navigation.navigate('Session', { preSUD: sudValue, goal })
                 }
                 onBack={() => navigation.goBack()}
               />
@@ -98,8 +98,12 @@ export default function App() {
               <SessionScreen
                 settings={settings}
                 preSUD={route.params.preSUD}
+                goal={route.params.goal}
                 onSessionComplete={(partialSummary) =>
-                  navigation.navigate('PostSessionSUD', { partialSummary })
+                  navigation.navigate('PostSessionSUD', {
+                    partialSummary,
+                    goal: route.params.goal
+                  })
                 }
                 onBack={() => navigation.goBack()}
               />
@@ -110,8 +114,11 @@ export default function App() {
             {({ navigation, route }) => (
               <PostSessionSUDScreen
                 partialSummary={route.params.partialSummary}
+                goal={route.params.goal}
                 onContinue={(summary) =>
-                  navigation.navigate('Summary', { summary })
+                  navigation.navigate('Summary', {
+                    summary: { ...summary, goal: route.params.goal }
+                  })
                 }
               />
             )}

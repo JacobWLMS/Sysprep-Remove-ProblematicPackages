@@ -10,11 +10,13 @@ import { theme, getSUDEmoji } from '../theme';
 
 interface PostSessionSUDScreenProps {
   partialSummary: Omit<SessionSummary, 'postSUD'>;
+  goal?: string;
   onContinue: (summary: SessionSummary) => void;
 }
 
 export const PostSessionSUDScreen: React.FC<PostSessionSUDScreenProps> = ({
   partialSummary,
+  goal,
   onContinue,
 }) => {
   const [sudValue, setSudValue] = useState(5);

@@ -8,6 +8,7 @@ import { AudioEngine } from '../components/AudioEngine';
 import { HapticEngine } from '../components/HapticEngine';
 import { SessionTimer } from '../components/SessionTimer';
 import { QuickSUDCheck } from '../components/QuickSUDCheck';
+import { GoalReminder } from '../components/GoalReminder';
 import { Button } from '../components/ui/Button';
 import { Text } from '../components/ui/Text';
 import { useBilateralStimulation, StimulationSide } from '../hooks/useBilateralStimulation';
@@ -18,6 +19,7 @@ import { theme } from '../theme';
 interface SessionScreenProps {
   settings: BLSSettings;
   preSUD: number;
+  goal?: string;
   onSessionComplete: (summary: Omit<SessionSummary, 'postSUD'>) => void;
   onBack: () => void;
 }
@@ -25,12 +27,14 @@ interface SessionScreenProps {
 export const SessionScreen: React.FC<SessionScreenProps> = ({
   settings,
   preSUD,
+  goal,
   onSessionComplete,
   onBack,
 }) => {
   const [currentSide, setCurrentSide] = React.useState<StimulationSide>('left');
   const [midSUDs, setMidSUDs] = useState<SUDRating[]>([]);
   const [showSUDCheck, setShowSUDCheck] = useState(false);
+  const [showGoalReminder, setShowGoalReminder] = useState(false);
   const [hasShownSUDForSet, setHasShownSUDForSet] = useState(false);
 
   const {
@@ -59,6 +63,19 @@ export const SessionScreen: React.FC<SessionScreenProps> = ({
   useEffect(() => {
     setCurrentSide(blsSide);
   }, [blsSide]);
+
+  // Show goal reminder during rest periods (if goal exists)
+  useEffect(() => {
+    if (goal && sessionState.isResting && sessionState.currentSet > 0 && sessionState.currentSet % 3 === 0) {
+      // Show goal reminder 1 second into rest period, every 3rd set
+      const timer = setTimeout(() => {
+        setShowGoalReminder(true);
+      }, 1000);
+      return () => clearTimeout(timer);
+    } else if (!sessionState.isResting) {
+      setShowGoalReminder(false);
+    }
+  }, [sessionState.isResting, sessionState.currentSet, goal]);
 
   // Show quick SUD check during rest periods
   useEffect(() => {
@@ -197,6 +214,11 @@ export const SessionScreen: React.FC<SessionScreenProps> = ({
           setDuration={settings.setDuration}
         />
       </View>
+
+      {/* Goal Reminder */}
+      {showGoalReminder && goal && (
+        <GoalReminder goal={goal} onDismiss={() => setShowGoalReminder(false)} />
+      )}
 
       {/* Quick SUD Check */}
       {showSUDCheck && (
