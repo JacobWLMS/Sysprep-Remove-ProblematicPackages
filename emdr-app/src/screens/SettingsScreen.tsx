@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, ScrollView, StyleSheet, Switch } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import Slider from '@react-native-community/slider';
@@ -48,6 +49,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
 }) => {
   const { theme, mode, toggleTheme } = useTheme();
   const [testingAudio, setTestingAudio] = useState(false);
+  const insets = useSafeAreaInsets();
   const [audioEngineRef, setAudioEngineRef] = useState<any>(null);
 
   const styles = React.useMemo(() => createStyles(theme), [theme]);
@@ -120,7 +122,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
         </Button>
       </View>
 
-      <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
+      <ScrollView style={styles.scrollView} contentContainerStyle={[styles.content, { paddingTop: Math.max(insets.top, theme.spacing[8]), paddingBottom: Math.max(insets.bottom, theme.spacing[8]) }]}>
         {/* Presets */}
         <Card variant="elevated" style={styles.section}>
           <View style={styles.sectionHeader}>

@@ -1,12 +1,13 @@
 import React, { useEffect, useRef } from 'react';
 import { View, StyleSheet, ScrollView, Animated } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { SessionSummary } from '../types';
 import { SUDGraph } from '../components/SUDGraph';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { Text } from '../components/ui/Text';
-import { theme, getSUDEmoji } from '../theme';
+import { useTheme, getSUDEmoji } from '../theme';
 
 interface SummaryScreenProps {
   summary: SessionSummary;
@@ -23,6 +24,9 @@ export const SummaryScreen: React.FC<SummaryScreenProps> = ({
   summary,
   onDone,
 }) => {
+  const { theme } = useTheme();
+  const insets = useSafeAreaInsets();
+  const styles = React.useMemo(() => createStyles(theme), [theme]);
   const sudChange = summary.postSUD.value - summary.preSUD.value;
   const sudImproved = sudChange < 0;
   const sudChangeAbs = Math.abs(sudChange);
@@ -40,7 +44,15 @@ export const SummaryScreen: React.FC<SummaryScreenProps> = ({
 
   return (
     <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView
+        contentContainerStyle={[
+          styles.content,
+          {
+            paddingTop: Math.max(insets.top, theme.spacing[8]),
+            paddingBottom: Math.max(insets.bottom, theme.spacing[8]),
+          },
+        ]}
+      >
         {/* Header with Success Animation */}
         <View style={styles.header}>
           <Text variant="h2" align="center" style={styles.title}>
@@ -136,75 +148,74 @@ export const SummaryScreen: React.FC<SummaryScreenProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
-  },
-  content: {
-    paddingHorizontal: theme.layout.screenPadding,
-    paddingVertical: theme.spacing[12],
-    paddingBottom: theme.spacing[10],
-  },
-  header: {
-    alignItems: 'center',
-    marginBottom: theme.spacing[8],
-  },
-  title: {
-    marginBottom: theme.spacing[6],
-  },
-  checkmark: {
-    marginBottom: theme.spacing[4],
-  },
-  graphCard: {
-    marginBottom: theme.spacing[6],
-    padding: theme.spacing[5],
-  },
-  statsContainer: {
-    flexDirection: 'row',
-    gap: theme.spacing[4],
-    marginBottom: theme.spacing[6],
-  },
-  statCard: {
-    flex: 1,
-    alignItems: 'center',
-    padding: theme.spacing[5],
-  },
-  statValue: {
-    marginVertical: theme.spacing[2],
-  },
-  section: {
-    marginBottom: theme.spacing[6],
-  },
-  sectionTitle: {
-    marginBottom: theme.spacing[4],
-  },
-  midSudsList: {
-    gap: theme.spacing[3],
-  },
-  midSudItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: theme.spacing[4],
-  },
-  midSudLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing[3],
-  },
-  midSudEmoji: {
-    fontSize: 32,
-  },
-  noteCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: theme.spacing[4],
-    backgroundColor: theme.colors.primary10,
-    marginBottom: theme.spacing[6],
-    gap: theme.spacing[3],
-  },
-  noteIcon: {
-    marginRight: theme.spacing[2],
-  },
-});
+const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+    },
+    content: {
+      paddingHorizontal: theme.layout.screenPadding,
+    },
+    header: {
+      alignItems: 'center',
+      marginBottom: theme.spacing[8],
+    },
+    title: {
+      marginBottom: theme.spacing[6],
+    },
+    checkmark: {
+      marginBottom: theme.spacing[4],
+    },
+    graphCard: {
+      marginBottom: theme.spacing[6],
+      padding: theme.spacing[5],
+    },
+    statsContainer: {
+      flexDirection: 'row',
+      gap: theme.spacing[4],
+      marginBottom: theme.spacing[6],
+    },
+    statCard: {
+      flex: 1,
+      alignItems: 'center',
+      padding: theme.spacing[5],
+    },
+    statValue: {
+      marginVertical: theme.spacing[2],
+    },
+    section: {
+      marginBottom: theme.spacing[6],
+    },
+    sectionTitle: {
+      marginBottom: theme.spacing[4],
+    },
+    midSudsList: {
+      gap: theme.spacing[3],
+    },
+    midSudItem: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: theme.spacing[4],
+    },
+    midSudLeft: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: theme.spacing[3],
+    },
+    midSudEmoji: {
+      fontSize: 32,
+    },
+    noteCard: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      padding: theme.spacing[4],
+      backgroundColor: theme.colors.primary10,
+      marginBottom: theme.spacing[6],
+      gap: theme.spacing[3],
+    },
+    noteIcon: {
+      marginRight: theme.spacing[2],
+    },
+  });

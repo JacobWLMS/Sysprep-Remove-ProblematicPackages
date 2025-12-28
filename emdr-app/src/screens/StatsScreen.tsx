@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
@@ -8,7 +9,7 @@ import { PieChart, PieChartData } from '../components/PieChart';
 import { BarChart, BarChartData } from '../components/BarChart';
 import { SessionHistory, SessionStats } from '../types';
 import { loadSessionHistory, calculateStats } from '../utils/storage';
-import { theme, getSUDColor, getSUDEmoji } from '../theme';
+import { useTheme, getSUDColor, getSUDEmoji } from '../theme';
 
 interface StatsScreenProps {
   onClose: () => void;
@@ -37,6 +38,9 @@ const formatDate = (timestamp: number): string => {
 
 export const StatsScreen: React.FC<StatsScreenProps> = ({ onClose }) => {
   const [history, setHistory] = useState<SessionHistory[]>([]);
+  const { theme } = useTheme();
+  const insets = useSafeAreaInsets();
+  const styles = React.useMemo(() => createStyles(theme), [theme]);
   const [stats, setStats] = useState<SessionStats | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -121,7 +125,7 @@ export const StatsScreen: React.FC<StatsScreenProps> = ({ onClose }) => {
 
   return (
     <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={[styles.content, { paddingTop: Math.max(insets.top, theme.spacing[8]), paddingBottom: Math.max(insets.bottom, theme.spacing[8]) }]} showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
           <Text variant="h2">Your Progress</Text>
