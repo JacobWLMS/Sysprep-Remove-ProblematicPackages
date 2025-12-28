@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SUDSlider } from '../components/SUDSlider';
+import { Button } from '../components/ui/Button';
+import { Text } from '../components/ui/Text';
+import { theme } from '../theme';
 
 interface PreSessionSUDScreenProps {
   onContinue: (sudValue: number) => void;
@@ -16,18 +20,26 @@ export const PreSessionSUDScreen: React.FC<PreSessionSUDScreenProps> = ({
 
   return (
     <LinearGradient
-      colors={['#1a1a1a', '#0a0a0a']}
+      colors={[theme.colors.backgroundLight, theme.colors.background]}
       style={styles.container}
     >
       <View style={styles.content}>
-        <TouchableOpacity onPress={onBack} style={styles.backButton}>
-          <Text style={styles.backButtonText}>← Back</Text>
-        </TouchableOpacity>
+        <Button
+          variant="ghost"
+          size="small"
+          onPress={onBack}
+          icon={<Ionicons name="arrow-back" size={20} color={theme.colors.primary} />}
+          style={styles.backButton}
+        >
+          <Text variant="label" color="primary">Back</Text>
+        </Button>
 
         <View style={styles.mainContent}>
           <View style={styles.titleContainer}>
-            <Text style={styles.title}>Before We Begin</Text>
-            <Text style={styles.description}>
+            <Text variant="h2" align="center" style={styles.title}>
+              Before We Begin
+            </Text>
+            <Text variant="body" color="textSecondary" align="center" style={styles.description}>
               Rate your current level of distress related to the memory or issue you'll be working on.
             </Text>
           </View>
@@ -36,12 +48,14 @@ export const PreSessionSUDScreen: React.FC<PreSessionSUDScreenProps> = ({
             <SUDSlider value={sudValue} onChange={setSudValue} showLabels={true} />
           </View>
 
-          <TouchableOpacity
-            style={styles.continueButton}
+          <Button
+            size="large"
+            fullWidth
             onPress={() => onContinue(sudValue)}
+            icon={<Ionicons name="play-circle" size={24} color={theme.colors.white} />}
           >
-            <Text style={styles.continueButtonText}>Start Session</Text>
-          </TouchableOpacity>
+            Start Session
+          </Button>
         </View>
       </View>
     </LinearGradient>
@@ -54,53 +68,30 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    paddingTop: 60,
+    paddingTop: theme.spacing[12],
   },
   backButton: {
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-  },
-  backButtonText: {
-    fontSize: 16,
-    color: '#00A8E8',
-    fontWeight: '600',
+    alignSelf: 'flex-start',
+    marginLeft: theme.layout.screenPadding,
   },
   mainContent: {
     flex: 1,
-    paddingHorizontal: 32,
+    paddingHorizontal: theme.layout.screenPadding,
     justifyContent: 'space-between',
-    paddingBottom: 60,
+    paddingBottom: theme.spacing[12],
   },
   titleContainer: {
-    marginTop: 40,
+    marginTop: theme.spacing[10],
   },
   title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 16,
-    textAlign: 'center',
+    marginBottom: theme.spacing[4],
   },
   description: {
-    fontSize: 16,
-    color: '#ccc',
-    textAlign: 'center',
     lineHeight: 24,
   },
   sliderContainer: {
     flex: 1,
     justifyContent: 'center',
-    paddingVertical: 40,
-  },
-  continueButton: {
-    backgroundColor: '#00A8E8',
-    paddingVertical: 20,
-    borderRadius: 16,
-    alignItems: 'center',
-  },
-  continueButtonText: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#fff',
+    paddingVertical: theme.spacing[10],
   },
 });
