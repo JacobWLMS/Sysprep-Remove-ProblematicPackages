@@ -14,7 +14,7 @@ import { Text } from '../components/ui/Text';
 import { useBilateralStimulation, StimulationSide } from '../hooks/useBilateralStimulation';
 import { useSessionTimer } from '../hooks/useSessionTimer';
 import { BLSSettings, SessionSummary, SUDRating } from '../types';
-import { theme } from '../theme';
+import { useTheme } from '../theme';
 
 interface SessionScreenProps {
   settings: BLSSettings;
@@ -31,6 +31,7 @@ export const SessionScreen: React.FC<SessionScreenProps> = ({
   onSessionComplete,
   onBack,
 }) => {
+  const { theme } = useTheme();
   const [currentSide, setCurrentSide] = React.useState<StimulationSide>('left');
   const [midSUDs, setMidSUDs] = useState<SUDRating[]>([]);
   const [showSUDCheck, setShowSUDCheck] = useState(false);
@@ -103,8 +104,8 @@ export const SessionScreen: React.FC<SessionScreenProps> = ({
     lockOrientation();
 
     return () => {
-      // Unlock orientation and allow sleep when leaving
-      ScreenOrientation.unlockAsync();
+      // Explicitly lock back to portrait and allow sleep when leaving
+      ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
       deactivateKeepAwake();
     };
   }, []);
