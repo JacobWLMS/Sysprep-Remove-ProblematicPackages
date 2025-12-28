@@ -13,7 +13,7 @@ const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 export interface CardProps {
   children: React.ReactNode;
   variant?: 'default' | 'elevated' | 'outlined';
-  padding?: number;
+  padding?: keyof ReturnType<typeof useTheme>['theme']['spacing'];
   onPress?: () => void;
   style?: ViewStyle;
   haptic?: boolean;

@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { lightColors, darkColors, Colors } from './colors';
-import { typography } from './typography';
+import { typography, fontSizes, fontWeights, lineHeights } from './typography';
 import { spacing, borderRadius, shadows, layout } from './spacing';
 
 export type ThemeMode = 'light' | 'dark';
@@ -9,6 +9,9 @@ export type ThemeMode = 'light' | 'dark';
 interface Theme {
   colors: Colors;
   typography: typeof typography;
+  fontSizes: typeof fontSizes;
+  fontWeights: typeof fontWeights;
+  lineHeights: typeof lineHeights;
   spacing: typeof spacing;
   borderRadius: typeof borderRadius;
   shadows: typeof shadows;
@@ -28,6 +31,9 @@ const THEME_STORAGE_KEY = '@emdr_theme_mode';
 const createTheme = (mode: ThemeMode): Theme => ({
   colors: mode === 'light' ? lightColors : darkColors,
   typography,
+  fontSizes,
+  fontWeights,
+  lineHeights,
   spacing,
   borderRadius,
   shadows,

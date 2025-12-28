@@ -14,7 +14,12 @@
       "Bash(npx expo run:android:*)",
       "Bash(npx expo-doctor)",
       "Bash(npx expo prebuild:*)",
-      "Bash(npx expo-doctor:*)"
+      "Bash(npx expo-doctor:*)",
+      "Bash(taskkill:*)",
+      "Bash(tasklist:*)",
+      "Bash(dir:*)",
+      "Bash(rm:*)",
+      "Bash(npm cache clean:*)"
     ],
     "deny": [],
     "ask": []

@@ -3,6 +3,7 @@ import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer, getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { HomeScreen } from './src/screens/HomeScreen';
 import { SettingsScreen } from './src/screens/SettingsScreen';
@@ -17,6 +18,7 @@ import { loadSettings, saveSettings, saveSessionHistory, loadDemoDataIfNeeded } 
 import { ThemeProvider, useTheme } from './src/theme';
 
 export type SessionStackParamList = {
+  Home: undefined;
   GoalSetting: undefined;
   SUDRating: { goal: string };
   Session: { preSUD: number; goal: string };
@@ -58,9 +60,11 @@ export default function App() {
   }
 
   return (
-    <ThemeProvider>
-      <AppContent settings={settings} onSettingsChange={handleSettingsChange} />
-    </ThemeProvider>
+    <SafeAreaProvider>
+      <ThemeProvider>
+        <AppContent settings={settings} onSettingsChange={handleSettingsChange} />
+      </ThemeProvider>
+    </SafeAreaProvider>
   );
 }
 
@@ -70,6 +74,7 @@ function AppContent({ settings, onSettingsChange }: {
   onSettingsChange: (settings: BLSSettings) => void;
 }) {
   const { theme } = useTheme();
+  const insets = useSafeAreaInsets();
 
   // Home Tab Navigator with session flow
   function HomeTabNavigator() {
@@ -80,7 +85,7 @@ function AppContent({ settings, onSettingsChange }: {
           animation: 'slide_from_right',
         }}
       >
-        <Stack.Screen name="HomeTab">
+        <Stack.Screen name="Home">
           {({ navigation }) => (
             <HomeScreen
               onStartSession={() => navigation.navigate('GoalSetting')}
@@ -155,7 +160,7 @@ function AppContent({ settings, onSettingsChange }: {
             return (
               <SummaryScreen
                 summary={route.params.summary}
-                onDone={() => navigation.navigate('HomeTab')}
+                onDone={() => navigation.navigate('Home')}
               />
             );
           }}
@@ -175,8 +180,8 @@ function AppContent({ settings, onSettingsChange }: {
             backgroundColor: theme.colors.backgroundElevated,
             borderTopColor: theme.colors.border,
             paddingTop: 8,
-            paddingBottom: 8,
-            height: 68,
+            paddingBottom: Math.max(insets.bottom, 8),
+            height: 68 + Math.max(insets.bottom - 8, 0),
           },
           tabBarLabelStyle: {
             fontSize: 12,
@@ -189,7 +194,7 @@ function AppContent({ settings, onSettingsChange }: {
           name="HomeTab"
           component={HomeTabNavigator}
           options={({ route }) => {
-            const routeName = getFocusedRouteNameFromRoute(route) ?? 'HomeTab';
+            const routeName = getFocusedRouteNameFromRoute(route) ?? 'Home';
             // Hide tab bar during session flow
             const hideTabBar = ['GoalSetting', 'SUDRating', 'Session', 'PostSessionSUD', 'Summary'].includes(routeName);
 
@@ -204,8 +209,8 @@ function AppContent({ settings, onSettingsChange }: {
                     backgroundColor: theme.colors.backgroundElevated,
                     borderTopColor: theme.colors.border,
                     paddingTop: 8,
-                    paddingBottom: 8,
-                    height: 68,
+                    paddingBottom: Math.max(insets.bottom, 8),
+                    height: 68 + Math.max(insets.bottom - 8, 0),
                   },
             };
           }}

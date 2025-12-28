@@ -101,11 +101,9 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
       {/* Hidden AudioEngine for testing */}
       <View style={{ height: 0, overflow: 'hidden' }}>
         <AudioEngine
-          ref={(ref) => setAudioEngineRef(ref)}
           enabled={settings.audioEnabled}
+          side="left"
           volume={settings.audioVolume}
-          frequency={settings.speed}
-          onTrigger={() => {}}
         />
       </View>
 
@@ -282,11 +280,11 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                   key={color.value}
                   variant="ghost"
                   onPress={() => updateSetting('dotColor', color.value)}
-                  style={[
-                    styles.colorSwatch,
-                    { backgroundColor: color.value },
-                    settings.dotColor === color.value && styles.colorSwatchSelected,
-                  ]}
+                  style={
+                    settings.dotColor === color.value
+                      ? { ...styles.colorSwatch, backgroundColor: color.value, ...styles.colorSwatchSelected }
+                      : { ...styles.colorSwatch, backgroundColor: color.value }
+                  }
                 >
                   {settings.dotColor === color.value && (
                     <Ionicons name="checkmark" size={24} color={theme.colors.white} />

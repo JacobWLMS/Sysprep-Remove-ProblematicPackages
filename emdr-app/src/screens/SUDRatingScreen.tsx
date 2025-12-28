@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { SUDSlider } from '../components/SUDSlider';
@@ -24,66 +24,71 @@ export const SUDRatingScreen: React.FC<SUDRatingScreenProps> = ({
   const [sudValue, setSudValue] = useState(5);
 
   return (
-    <View
-      style={[
-        styles.container,
-        {
-          paddingTop: Math.max(insets.top, theme.spacing[5]),
-          paddingBottom: Math.max(insets.bottom, theme.spacing[5]),
-          paddingLeft: Math.max(insets.left, theme.layout.screenPadding),
-          paddingRight: Math.max(insets.right, theme.layout.screenPadding),
-        },
-      ]}
-    >
-      <Button
-        variant="ghost"
-        size="small"
-        onPress={onBack}
-        icon={<Ionicons name="arrow-back" size={20} color={theme.colors.primary} />}
-        style={styles.backButton}
+    <View style={styles.container}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={[
+          styles.content,
+          {
+            paddingTop: Math.max(insets.top, theme.spacing[5]),
+            paddingBottom: Math.max(insets.bottom, theme.spacing[5]),
+            paddingLeft: Math.max(insets.left, theme.layout.screenPadding),
+            paddingRight: Math.max(insets.right, theme.layout.screenPadding),
+          },
+        ]}
       >
-        <Text variant="label" color="primary">
-          Back
-        </Text>
-      </Button>
-
-      <View style={styles.mainContent}>
-        <View style={styles.titleContainer}>
-          <View style={[styles.iconCircle, { backgroundColor: theme.colors.primary + '20' }]}>
-            <Ionicons name="heart" size={32} color={theme.colors.primary} />
-          </View>
-          <Text variant="h2" align="center" style={styles.title}>
-            Rate Your Distress
-          </Text>
-          <Text variant="body" color="textSecondary" align="center" style={styles.description}>
-            How distressing does this feel right now?
-          </Text>
-        </View>
-
-        <View style={styles.goalReminder}>
-          <Text variant="caption" color="textTertiary" align="center">
-            YOUR FOCUS
-          </Text>
-          <Text variant="bodyLarge" color="textPrimary" align="center" style={styles.goalText}>
-            "{goal}"
-          </Text>
-        </View>
-
-        <View style={styles.sliderContainer}>
-          <SUDSlider value={sudValue} onChange={setSudValue} showLabels={true} />
-        </View>
-
-        <View style={styles.spacer} />
-
         <Button
-          size="large"
-          fullWidth
-          onPress={() => onContinue(sudValue)}
-          icon={<Ionicons name="play-circle" size={24} color={theme.colors.white} />}
+          variant="ghost"
+          size="small"
+          onPress={onBack}
+          icon={<Ionicons name="arrow-back" size={20} color={theme.colors.primary} />}
+          style={styles.backButton}
         >
-          Begin Healing
+          <Text variant="label" color="primary">
+            Back
+          </Text>
         </Button>
-      </View>
+
+        <View style={styles.mainContent}>
+          <View>
+            <View style={styles.titleContainer}>
+              <View style={[styles.iconCircle, { backgroundColor: theme.colors.primary + '20' }]}>
+                <Ionicons name="heart" size={28} color={theme.colors.primary} />
+              </View>
+              <Text variant="h3" align="center" style={styles.title}>
+                Rate Your Distress
+              </Text>
+              <Text variant="bodySmall" color="textSecondary" align="center" style={styles.description}>
+                How distressing does this feel?
+              </Text>
+            </View>
+
+            <View style={styles.goalReminder}>
+              <Text variant="caption" color="textTertiary" align="center">
+                YOUR FOCUS
+              </Text>
+              <Text variant="body" color="textPrimary" align="center" style={styles.goalText}>
+                "{goal}"
+              </Text>
+            </View>
+
+            <View style={styles.sliderContainer}>
+              <SUDSlider value={sudValue} onChange={setSudValue} showLabels={false} showTitle={false} />
+            </View>
+          </View>
+
+          <View style={styles.buttonContainer}>
+            <Button
+              size="large"
+              fullWidth
+              onPress={() => onContinue(sudValue)}
+              icon={<Ionicons name="play-circle" size={24} color={theme.colors.white} />}
+            >
+              Begin Healing
+            </Button>
+          </View>
+        </View>
+      </ScrollView>
     </View>
   );
 };
@@ -94,9 +99,16 @@ const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
       flex: 1,
       backgroundColor: theme.colors.background,
     },
+    scrollView: {
+      flex: 1,
+    },
+    content: {
+      flexGrow: 1,
+      justifyContent: 'space-between',
+    },
     backButton: {
       alignSelf: 'flex-start',
-      marginBottom: theme.spacing[4],
+      marginBottom: theme.spacing[3],
     },
     mainContent: {
       flex: 1,
@@ -104,36 +116,37 @@ const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
     },
     titleContainer: {
       alignItems: 'center',
-      gap: theme.spacing[3],
-      marginBottom: theme.spacing[6],
+      gap: theme.spacing[2],
+      marginBottom: theme.spacing[3],
     },
     iconCircle: {
-      width: 72,
-      height: 72,
+      width: 60,
+      height: 60,
       borderRadius: theme.borderRadius.full,
       alignItems: 'center',
       justifyContent: 'center',
     },
     title: {
-      marginTop: theme.spacing[2],
+      marginTop: theme.spacing[1],
     },
     description: {
-      lineHeight: 24,
+      lineHeight: 20,
     },
     goalReminder: {
       backgroundColor: theme.colors.surfaceLight,
       borderRadius: theme.borderRadius.md,
-      padding: theme.spacing[5],
+      padding: theme.spacing[4],
       gap: theme.spacing[2],
+      marginBottom: theme.spacing[3],
     },
     goalText: {
       fontStyle: 'italic',
-      lineHeight: 26,
+      lineHeight: 22,
     },
     sliderContainer: {
-      paddingVertical: theme.spacing[6],
+      paddingVertical: theme.spacing[4],
     },
-    spacer: {
-      flex: 1,
+    buttonContainer: {
+      paddingTop: theme.spacing[4],
     },
   });

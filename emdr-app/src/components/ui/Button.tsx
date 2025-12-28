@@ -199,6 +199,9 @@ const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
     outlineDisabled: {
       borderColor: theme.colors.textDisabled,
     },
+    ghostDisabled: {
+      backgroundColor: theme.colors.transparent,
+    },
 
     // Text styles
     text: {

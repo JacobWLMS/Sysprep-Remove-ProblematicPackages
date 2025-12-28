@@ -280,7 +280,7 @@ export const SessionScreen: React.FC<SessionScreenProps> = ({
           variant="primary"
           onPress={handleStop}
           icon={<Ionicons name="stop" size={20} color={theme.colors.white} />}
-          style={[styles.controlButton, { backgroundColor: theme.colors.error }]}
+          style={{ ...styles.controlButton, backgroundColor: theme.colors.error }}
         >
           Stop
         </Button>

@@ -37,7 +37,7 @@ export const QuickSUDCheck: React.FC<QuickSUDCheckProps> = ({
         </Text>
 
         <View style={styles.emojiContainer}>
-          <Text style={[styles.emoji]}>{currentEmoji}</Text>
+          <Text style={styles.emoji}>{currentEmoji}</Text>
           <Text variant="h2" style={{ color: currentColor }}>
             {value}
           </Text>

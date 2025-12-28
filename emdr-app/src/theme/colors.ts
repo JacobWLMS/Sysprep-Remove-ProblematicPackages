@@ -171,4 +171,5 @@ export const darkColors = {
 // Default export for backward compatibility
 export const colors = lightColors;
 
-export type Colors = typeof lightColors;
+// Use a more flexible type that accommodates both light and dark themes
+export type Colors = typeof lightColors | typeof darkColors;

@@ -107,20 +107,22 @@ export const SUDSlider: React.FC<SUDSliderProps> = ({
                 <View key={val} style={styles.scaleItem}>
                   <Text
                     variant="h3"
-                    style={[
-                      styles.scaleEmoji,
-                      isActive && styles.scaleEmojiActive,
-                    ]}
+                    style={
+                      isActive
+                        ? { ...styles.scaleEmoji, ...styles.scaleEmojiActive }
+                        : styles.scaleEmoji
+                    }
                   >
                     {scaleData.emoji}
                   </Text>
                   <Text
                     variant="captionBold"
                     color="textTertiary"
-                    style={[
-                      styles.scaleValue,
-                      isActive && { color: scaleData.color },
-                    ]}
+                    style={
+                      isActive
+                        ? { ...styles.scaleValue, color: scaleData.color }
+                        : styles.scaleValue
+                    }
                   >
                     {val}
                   </Text>

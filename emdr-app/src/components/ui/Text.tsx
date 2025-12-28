@@ -40,11 +40,11 @@ export const Text: React.FC<TextProps> = ({
 }) => {
   const { theme } = useTheme();
 
-  const textStyle = [
-    theme.typography[variant],
-    { color: theme.colors[color] },
+  const textStyle: TextStyle[] = [
+    theme.typography[variant] as TextStyle,
+    { color: theme.colors[color] as string },
     { textAlign: align },
-    style,
+    style as TextStyle,
   ];
 
   return (
