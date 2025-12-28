@@ -11,6 +11,7 @@ import { SummaryScreen } from './src/screens/SummaryScreen';
 import { StatsScreen } from './src/screens/StatsScreen';
 import { BLSSettings, DEFAULT_SETTINGS, SessionSummary } from './src/types';
 import { loadSettings, saveSettings, saveSessionHistory } from './src/utils/storage';
+import { ThemeProvider } from './src/theme';
 
 export type RootStackParamList = {
   Home: undefined;
@@ -47,8 +48,7 @@ export default function App() {
   }
 
   return (
-    <>
-      <StatusBar style="dark" />
+    <ThemeProvider>
       <NavigationContainer>
         <Stack.Navigator
           screenOptions={{
@@ -141,6 +141,6 @@ export default function App() {
           </Stack.Screen>
         </Stack.Navigator>
       </NavigationContainer>
-    </>
+    </ThemeProvider>
   );
 }

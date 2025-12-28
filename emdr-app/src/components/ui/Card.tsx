@@ -6,14 +6,14 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
-import { theme } from '../../theme';
+import { useTheme } from '../../theme';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 export interface CardProps {
   children: React.ReactNode;
   variant?: 'default' | 'elevated' | 'outlined';
-  padding?: keyof typeof theme.spacing;
+  padding?: number;
   onPress?: () => void;
   style?: ViewStyle;
   haptic?: boolean;
@@ -29,6 +29,8 @@ export const Card: React.FC<CardProps> = ({
   haptic = true,
   testID,
 }) => {
+  const { theme } = useTheme();
+  const styles = React.useMemo(() => createStyles(theme), [theme]);
   const scale = useSharedValue(1);
 
   const handlePressIn = () => {
@@ -84,21 +86,22 @@ export const Card: React.FC<CardProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
-  card: {
-    borderRadius: theme.borderRadius.md,
-    backgroundColor: theme.colors.surface,
-  },
-  default: {
-    backgroundColor: theme.colors.surface,
-  },
-  elevated: {
-    backgroundColor: theme.colors.surfaceLight,
-    ...theme.shadows.md,
-  },
-  outlined: {
-    backgroundColor: theme.colors.transparent,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-  },
-});
+const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
+  StyleSheet.create({
+    card: {
+      borderRadius: theme.borderRadius.md,
+      backgroundColor: theme.colors.surface,
+    },
+    default: {
+      backgroundColor: theme.colors.surface,
+    },
+    elevated: {
+      backgroundColor: theme.colors.surfaceLight,
+      ...theme.shadows.md,
+    },
+    outlined: {
+      backgroundColor: theme.colors.transparent,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+    },
+  });
