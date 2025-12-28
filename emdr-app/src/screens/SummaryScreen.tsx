@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { View, StyleSheet, ScrollView, Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import { SessionSummary } from '../types';
 import { SUDGraph } from '../components/SUDGraph';
 import { Button } from '../components/ui/Button';
@@ -40,10 +39,7 @@ export const SummaryScreen: React.FC<SummaryScreenProps> = ({
   }, []);
 
   return (
-    <LinearGradient
-      colors={[theme.colors.backgroundLight, theme.colors.background]}
-      style={styles.container}
-    >
+    <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.content}>
         {/* Header with Success Animation */}
         <View style={styles.header}>
@@ -136,13 +132,14 @@ export const SummaryScreen: React.FC<SummaryScreenProps> = ({
           Return Home
         </Button>
       </ScrollView>
-    </LinearGradient>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: theme.colors.background,
   },
   content: {
     paddingHorizontal: theme.layout.screenPadding,
