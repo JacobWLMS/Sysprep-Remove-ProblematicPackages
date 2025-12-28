@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { SUDSlider } from '../components/SUDSlider';
 import { Button } from '../components/ui/Button';
 import { Text } from '../components/ui/Text';
+import { AppHeader } from '../components/ui/AppHeader';
 import { useTheme } from '../theme';
 
 interface SUDRatingScreenProps {
@@ -30,65 +31,55 @@ export const SUDRatingScreen: React.FC<SUDRatingScreenProps> = ({
         contentContainerStyle={[
           styles.content,
           {
-            paddingTop: Math.max(insets.top, theme.spacing[5]),
-            paddingBottom: Math.max(insets.bottom, theme.spacing[5]),
+            paddingTop: theme.spacing[4],
             paddingLeft: Math.max(insets.left, theme.layout.screenPadding),
             paddingRight: Math.max(insets.right, theme.layout.screenPadding),
           },
         ]}
       >
-        <Button
-          variant="ghost"
-          size="small"
-          onPress={onBack}
-          icon={<Ionicons name="arrow-back" size={20} color={theme.colors.primary} />}
-          style={styles.backButton}
-        >
-          <Text variant="label" color="primary">
-            Back
-          </Text>
-        </Button>
+        <AppHeader title="Rate Your Distress" left={{ onPress: onBack, icon: <Ionicons name="arrow-back" size={18} color={theme.colors.primary} /> }} compact />
 
-        <View style={styles.mainContent}>
-          <View>
-            <View style={styles.titleContainer}>
-              <View style={[styles.iconCircle, { backgroundColor: theme.colors.primary + '20' }]}>
-                <Ionicons name="heart" size={28} color={theme.colors.primary} />
-              </View>
-              <Text variant="h3" align="center" style={styles.title}>
-                Rate Your Distress
-              </Text>
-              <Text variant="bodySmall" color="textSecondary" align="center" style={styles.description}>
-                How distressing does this feel?
-              </Text>
+        <View style={styles.mainContentTop}>
+          <View style={styles.titleContainer}>
+            <View style={[styles.iconCircle, { backgroundColor: theme.colors.primary + '20' }]}>
+              <Ionicons name="heart" size={28} color={theme.colors.primary} />
             </View>
-
-            <View style={styles.goalReminder}>
-              <Text variant="caption" color="textTertiary" align="center">
-                YOUR FOCUS
-              </Text>
-              <Text variant="body" color="textPrimary" align="center" style={styles.goalText}>
-                "{goal}"
-              </Text>
-            </View>
-
-            <View style={styles.sliderContainer}>
-              <SUDSlider value={sudValue} onChange={setSudValue} showLabels={false} showTitle={false} />
-            </View>
+            <Text variant="h3" align="center" style={styles.title}>
+              Rate Your Distress
+            </Text>
+            <Text variant="bodySmall" color="textSecondary" align="center" style={styles.description}>
+              How distressing does this feel?
+            </Text>
           </View>
 
-          <View style={styles.buttonContainer}>
-            <Button
-              size="large"
-              fullWidth
-              onPress={() => onContinue(sudValue)}
-              icon={<Ionicons name="play-circle" size={24} color={theme.colors.white} />}
-            >
-              Begin Healing
-            </Button>
+          <View style={styles.goalReminder}>
+            <Text variant="caption" color="textTertiary" align="center">
+              YOUR FOCUS
+            </Text>
+            <Text variant="body" color="textPrimary" align="center" style={styles.goalText}>
+              "{goal}"
+            </Text>
+          </View>
+
+          <View style={styles.sliderContainer}>
+            <SUDSlider value={sudValue} onChange={setSudValue} showLabels={false} showTitle={false} />
           </View>
         </View>
+
       </ScrollView>
+
+      <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, theme.spacing[4]), paddingHorizontal: Math.max(insets.left, theme.layout.screenPadding) }]}>
+        <View style={styles.buttonContainer}>
+          <Button
+            size="large"
+            fullWidth
+            onPress={() => onContinue(sudValue)}
+            icon={<Ionicons name="play-circle" size={24} color={theme.colors.white} />}
+          >
+            Begin Healing
+          </Button>
+        </View>
+      </View>
     </View>
   );
 };
@@ -104,15 +95,13 @@ const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
     },
     content: {
       flexGrow: 1,
-      justifyContent: 'space-between',
     },
     backButton: {
       alignSelf: 'flex-start',
       marginBottom: theme.spacing[3],
     },
-    mainContent: {
+    mainContentTop: {
       flex: 1,
-      justifyContent: 'space-between',
     },
     titleContainer: {
       alignItems: 'center',
@@ -147,6 +136,9 @@ const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
       paddingVertical: theme.spacing[4],
     },
     buttonContainer: {
-      paddingTop: theme.spacing[4],
+      paddingTop: theme.spacing[2],
+    },
+    footer: {
+      backgroundColor: 'transparent',
     },
   });

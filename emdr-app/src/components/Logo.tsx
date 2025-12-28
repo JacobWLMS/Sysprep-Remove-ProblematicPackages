@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { View, StyleSheet, Animated } from 'react-native';
 import Svg, { Path, Circle, G } from 'react-native-svg';
 import { useTheme } from '../theme';
 
@@ -9,9 +9,36 @@ interface LogoProps {
 
 export const Logo: React.FC<LogoProps> = ({ size = 80 }) => {
   const { theme } = useTheme();
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1.05,
+          duration: 2000,
+          useNativeDriver: false,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 2000,
+          useNativeDriver: false,
+        }),
+      ])
+    ).start();
+  }, [pulseAnim]);
 
   return (
-    <View style={[styles.container, { width: size, height: size }]}>
+    <Animated.View 
+      style={[
+        styles.container, 
+        { 
+          width: size, 
+          height: size,
+          transform: [{ scale: pulseAnim }]
+        }
+      ]}
+    >
       <Svg width={size} height={size} viewBox="0 0 100 100">
         <G>
           {/* Left flowing path */}
@@ -80,7 +107,7 @@ export const Logo: React.FC<LogoProps> = ({ size = 80 }) => {
           />
         </G>
       </Svg>
-    </View>
+    </Animated.View>
   );
 };
 

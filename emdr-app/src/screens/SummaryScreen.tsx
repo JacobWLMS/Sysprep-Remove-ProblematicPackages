@@ -2,9 +2,12 @@ import React, { useEffect, useRef } from 'react';
 import { View, StyleSheet, ScrollView, Animated } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import * as ScreenOrientation from 'expo-screen-orientation';
+import { deactivateKeepAwake } from 'expo-keep-awake';
 import { SessionSummary } from '../types';
 import { SUDGraph } from '../components/SUDGraph';
 import { Button } from '../components/ui/Button';
+import { AppHeader } from '../components/ui/AppHeader';
 import { Card } from '../components/ui/Card';
 import { Text } from '../components/ui/Text';
 import { useTheme, getSUDEmoji } from '../theme';
@@ -42,33 +45,33 @@ export const SummaryScreen: React.FC<SummaryScreenProps> = ({
     }).start();
   }, []);
 
+  // Reset orientation to portrait when component mounts
+  useEffect(() => {
+    const resetOrientation = async () => {
+      try {
+        await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
+        await deactivateKeepAwake();
+      } catch (e) {
+        // ignore
+      }
+    };
+    resetOrientation();
+  }, []);
+
   return (
     <View style={styles.container}>
-      <ScrollView
-        contentContainerStyle={[
-          styles.content,
-          {
-            paddingTop: Math.max(insets.top, theme.spacing[8]),
-            paddingBottom: Math.max(insets.bottom, theme.spacing[8]),
-          },
-        ]}
-      >
-        {/* Header with Success Animation */}
-        <View style={styles.header}>
-          <Text variant="h2" align="center" style={styles.title}>
-            Session Complete
-          </Text>
-          <Animated.View
-            style={[
-              styles.checkmark,
-              {
-                transform: [{ scale: scaleAnim }],
-              },
-            ]}
-          >
-            <Ionicons name="checkmark-circle" size={80} color={theme.colors.success} />
-          </Animated.View>
-        </View>
+      <ScrollView contentContainerStyle={[styles.content, { paddingTop: theme.spacing[4], paddingBottom: Math.max(insets.bottom, theme.spacing[8]) }]} >
+        <AppHeader title="Session Complete" compact />
+        <Animated.View
+          style={[
+            styles.checkmark,
+            {
+              transform: [{ scale: scaleAnim }],
+            },
+          ]}
+        >
+          <Ionicons name="checkmark-circle" size={80} color={theme.colors.success} />
+        </Animated.View>
 
         {/* SUD Graph */}
         <Card variant="elevated" style={styles.graphCard}>

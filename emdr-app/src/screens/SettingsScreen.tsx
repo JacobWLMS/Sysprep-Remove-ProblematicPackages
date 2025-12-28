@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import Slider from '@react-native-community/slider';
 import { Button } from '../components/ui/Button';
+import { AppHeader } from '../components/ui/AppHeader';
 import { Card } from '../components/ui/Card';
 import { Text } from '../components/ui/Text';
 import { AudioEngine } from '../components/AudioEngine';
@@ -107,20 +108,9 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
         />
       </View>
 
-      {/* Header */}
-      <View style={styles.header}>
-        <Text variant="h2">Settings</Text>
-        <Button
-          variant="ghost"
-          size="small"
-          onPress={onClose}
-          icon={<Ionicons name="checkmark" size={24} color={theme.colors.primary} />}
-        >
-          Done
-        </Button>
-      </View>
+      <AppHeader title="Settings" />
 
-      <ScrollView style={styles.scrollView} contentContainerStyle={[styles.content, { paddingTop: Math.max(insets.top, theme.spacing[8]), paddingBottom: Math.max(insets.bottom, theme.spacing[8]) }]}>
+      <ScrollView style={styles.scrollView} contentContainerStyle={[styles.content, { paddingBottom: Math.max(insets.bottom, theme.spacing[8]) }]}>
         {/* Presets */}
         <Card variant="elevated" style={styles.section}>
           <View style={styles.sectionHeader}>

@@ -20,7 +20,7 @@ interface VisualStimulusProps {
   onSideTrigger?: (side: StimulationSide) => void;
 }
 
-const HORIZONTAL_PADDING = 40;
+const HORIZONTAL_PADDING_BASE = 40;
 
 export const VisualStimulus: React.FC<VisualStimulusProps> = ({
   isActive,
@@ -41,7 +41,10 @@ export const VisualStimulus: React.FC<VisualStimulusProps> = ({
   // Half cycle (left to right OR right to left)
   const halfCycleDuration = cycleDuration / 2;
 
-  const maxPosition = width - (HORIZONTAL_PADDING * 2) - dotSize;
+  const HORIZONTAL_PADDING = Math.max(12, Math.floor(width * 0.05));
+  // Ensure dotSize fits comfortably on small screens
+  const effectiveDotSize = Math.min(dotSize, Math.max(18, Math.floor(width * 0.12)));
+  const maxPosition = Math.max(0, width - (HORIZONTAL_PADDING * 2) - effectiveDotSize);
 
   // Stable callback for triggering side changes
   const triggerSide = useCallback((side: StimulationSide) => {
@@ -109,10 +112,11 @@ export const VisualStimulus: React.FC<VisualStimulusProps> = ({
         styles.dot,
         {
           backgroundColor: dotColor,
-          width: dotSize,
-          height: dotSize,
-          borderRadius: dotSize / 2,
+          width: effectiveDotSize,
+          height: effectiveDotSize,
+          borderRadius: effectiveDotSize / 2,
           left: HORIZONTAL_PADDING,
+          top: '45%',
         },
         animatedStyle,
       ]}

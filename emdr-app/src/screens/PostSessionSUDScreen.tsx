@@ -1,11 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import * as ScreenOrientation from 'expo-screen-orientation';
+import { deactivateKeepAwake } from 'expo-keep-awake';
 import { SUDSlider } from '../components/SUDSlider';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { Text } from '../components/ui/Text';
+import { AppHeader } from '../components/ui/AppHeader';
 import { SessionSummary } from '../types';
 import { useTheme, getSUDEmoji } from '../theme';
 
@@ -24,6 +27,19 @@ export const PostSessionSUDScreen: React.FC<PostSessionSUDScreenProps> = ({
   const insets = useSafeAreaInsets();
   const styles = React.useMemo(() => createStyles(theme), [theme]);
   const [sudValue, setSudValue] = useState(5);
+
+  // Reset orientation to portrait when component mounts
+  useEffect(() => {
+    const resetOrientation = async () => {
+      try {
+        await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
+        await deactivateKeepAwake();
+      } catch (e) {
+        // ignore
+      }
+    };
+    resetOrientation();
+  }, []);
 
   const handleContinue = () => {
     const summary: SessionSummary = {
@@ -45,12 +61,12 @@ export const PostSessionSUDScreen: React.FC<PostSessionSUDScreenProps> = ({
           styles.content,
           {
             paddingTop: Math.max(insets.top, theme.spacing[5]),
-            paddingBottom: Math.max(insets.bottom, theme.spacing[5]),
             paddingLeft: Math.max(insets.left, theme.layout.screenPadding),
             paddingRight: Math.max(insets.right, theme.layout.screenPadding),
           },
         ]}
       >
+        <AppHeader title="Session Complete" compact />
         <View style={styles.mainContent}>
           <View>
             <View style={styles.titleContainer}>

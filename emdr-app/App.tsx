@@ -9,6 +9,7 @@ import { HomeScreen } from './src/screens/HomeScreen';
 import { SettingsScreen } from './src/screens/SettingsScreen';
 import { GoalSettingScreen } from './src/screens/GoalSettingScreen';
 import { SUDRatingScreen } from './src/screens/SUDRatingScreen';
+import { SessionInstructionsScreen } from './src/screens/SessionInstructionsScreen';
 import { SessionScreen } from './src/screens/SessionScreen';
 import { PostSessionSUDScreen } from './src/screens/PostSessionSUDScreen';
 import { SummaryScreen } from './src/screens/SummaryScreen';
@@ -21,6 +22,7 @@ export type SessionStackParamList = {
   Home: undefined;
   GoalSetting: undefined;
   SUDRating: { goal: string };
+  SessionInstructions: { preSUD: number; goal: string };
   Session: { preSUD: number; goal: string };
   PostSessionSUD: { partialSummary: Omit<SessionSummary, 'postSUD'>; goal: string };
   Summary: { summary: SessionSummary };
@@ -89,8 +91,6 @@ function AppContent({ settings, onSettingsChange }: {
           {({ navigation }) => (
             <HomeScreen
               onStartSession={() => navigation.navigate('GoalSetting')}
-              onOpenSettings={() => {}} // Handled by bottom tabs
-              onOpenStats={() => {}} // Handled by bottom tabs
             />
           )}
         </Stack.Screen>
@@ -109,8 +109,25 @@ function AppContent({ settings, onSettingsChange }: {
             <SUDRatingScreen
               goal={route.params.goal}
               onContinue={(sudValue) =>
-                navigation.navigate('Session', {
+                navigation.navigate('SessionInstructions', {
                   preSUD: sudValue,
+                  goal: route.params.goal,
+                })
+              }
+              onBack={() => navigation.goBack()}
+            />
+          )}
+        </Stack.Screen>
+
+        <Stack.Screen name="SessionInstructions">
+          {({ navigation, route }) => (
+            <SessionInstructionsScreen
+              preSUD={route.params.preSUD}
+              goal={route.params.goal}
+              settings={settings}
+              onContinue={() =>
+                navigation.replace('Session', {
+                  preSUD: route.params.preSUD,
                   goal: route.params.goal,
                 })
               }
