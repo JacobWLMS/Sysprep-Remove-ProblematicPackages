@@ -1,14 +1,15 @@
-import React from 'react';
-import {
-  View,
-  Text,
-  ScrollView,
-  StyleSheet,
-  Switch,
-  TouchableOpacity,
-} from 'react-native';
+import React, { useState } from 'react';
+import { View, ScrollView, StyleSheet, Switch } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import * as Haptics from 'expo-haptics';
 import Slider from '@react-native-community/slider';
+import { Button } from '../components/ui/Button';
+import { Card } from '../components/ui/Card';
+import { Text } from '../components/ui/Text';
+import { AudioEngine } from '../components/AudioEngine';
 import { BLSSettings, DOT_COLORS } from '../types';
+import { theme } from '../theme';
 
 interface SettingsScreenProps {
   settings: BLSSettings;
@@ -16,67 +17,195 @@ interface SettingsScreenProps {
   onClose: () => void;
 }
 
+// Quick preset configurations
+const PRESETS = {
+  gentle: {
+    speed: 0.5,
+    setDuration: 30,
+    restInterval: 15,
+    label: 'Gentle',
+    icon: 'leaf-outline' as const,
+  },
+  standard: {
+    speed: 1.0,
+    setDuration: 24,
+    restInterval: 10,
+    label: 'Standard',
+    icon: 'fitness-outline' as const,
+  },
+  intense: {
+    speed: 1.5,
+    setDuration: 20,
+    restInterval: 8,
+    label: 'Intense',
+    icon: 'flash-outline' as const,
+  },
+};
+
 export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   settings,
   onSettingsChange,
   onClose,
 }) => {
+  const [testingAudio, setTestingAudio] = useState(false);
+  const [audioEngineRef, setAudioEngineRef] = useState<any>(null);
+
   const updateSetting = <K extends keyof BLSSettings>(
     key: K,
     value: BLSSettings[K]
   ) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     onSettingsChange({ ...settings, [key]: value });
   };
 
+  const applyPreset = (presetKey: keyof typeof PRESETS) => {
+    const preset = PRESETS[presetKey];
+    onSettingsChange({
+      ...settings,
+      speed: preset.speed,
+      setDuration: preset.setDuration,
+      restInterval: preset.restInterval,
+    });
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+  };
+
+  const handleAudioTest = async () => {
+    if (testingAudio) {
+      // Stop test
+      if (audioEngineRef) {
+        await audioEngineRef.stop();
+      }
+      setTestingAudio(false);
+    } else {
+      // Start test
+      if (audioEngineRef) {
+        await audioEngineRef.start();
+        setTestingAudio(true);
+        // Auto-stop after 5 seconds
+        setTimeout(() => {
+          if (audioEngineRef) {
+            audioEngineRef.stop();
+          }
+          setTestingAudio(false);
+        }, 5000);
+      }
+    }
+  };
+
   return (
-    <View style={styles.container}>
+    <LinearGradient
+      colors={[theme.colors.backgroundLight, theme.colors.background]}
+      style={styles.container}
+    >
+      {/* Hidden AudioEngine for testing */}
+      <View style={{ height: 0, overflow: 'hidden' }}>
+        <AudioEngine
+          ref={(ref) => setAudioEngineRef(ref)}
+          enabled={settings.audioEnabled}
+          volume={settings.audioVolume}
+          frequency={settings.speed}
+          onTrigger={() => {}}
+        />
+      </View>
+
+      {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Settings</Text>
-        <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-          <Text style={styles.closeButtonText}>Done</Text>
-        </TouchableOpacity>
+        <Text variant="h2">Settings</Text>
+        <Button
+          variant="ghost"
+          size="small"
+          onPress={onClose}
+          icon={<Ionicons name="checkmark" size={24} color={theme.colors.primary} />}
+        >
+          Done
+        </Button>
       </View>
 
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
-        {/* Modality Toggles */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Modalities</Text>
+        {/* Presets */}
+        <Card variant="elevated" style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Ionicons name="sparkles-outline" size={24} color={theme.colors.primary} />
+            <Text variant="h4" style={styles.sectionTitle}>
+              Quick Presets
+            </Text>
+          </View>
+          <View style={styles.presetButtons}>
+            {Object.entries(PRESETS).map(([key, preset]) => (
+              <Button
+                key={key}
+                variant="outline"
+                size="small"
+                onPress={() => applyPreset(key as keyof typeof PRESETS)}
+                icon={<Ionicons name={preset.icon} size={20} color={theme.colors.primary} />}
+                style={styles.presetButton}
+              >
+                {preset.label}
+              </Button>
+            ))}
+          </View>
+        </Card>
+
+        {/* Modalities */}
+        <Card variant="elevated" style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Ionicons name="options-outline" size={24} color={theme.colors.primary} />
+            <Text variant="h4" style={styles.sectionTitle}>
+              Modalities
+            </Text>
+          </View>
 
           <View style={styles.settingRow}>
-            <Text style={styles.settingLabel}>Visual</Text>
+            <View style={styles.settingLabelContainer}>
+              <Ionicons name="eye-outline" size={20} color={theme.colors.textSecondary} />
+              <Text variant="body">Visual</Text>
+            </View>
             <Switch
               value={settings.visualEnabled}
               onValueChange={(value) => updateSetting('visualEnabled', value)}
-              trackColor={{ false: '#555', true: '#00A8E8' }}
-              thumbColor="#fff"
+              trackColor={{ false: theme.colors.border, true: theme.colors.primary }}
+              thumbColor={theme.colors.white}
             />
           </View>
 
           <View style={styles.settingRow}>
-            <Text style={styles.settingLabel}>Audio</Text>
+            <View style={styles.settingLabelContainer}>
+              <Ionicons name="headset-outline" size={20} color={theme.colors.textSecondary} />
+              <Text variant="body">Audio</Text>
+            </View>
             <Switch
               value={settings.audioEnabled}
               onValueChange={(value) => updateSetting('audioEnabled', value)}
-              trackColor={{ false: '#555', true: '#00A8E8' }}
-              thumbColor="#fff"
+              trackColor={{ false: theme.colors.border, true: theme.colors.primary }}
+              thumbColor={theme.colors.white}
             />
           </View>
 
           <View style={styles.settingRow}>
-            <Text style={styles.settingLabel}>Haptic</Text>
+            <View style={styles.settingLabelContainer}>
+              <Ionicons name="hand-left-outline" size={20} color={theme.colors.textSecondary} />
+              <Text variant="body">Haptic</Text>
+            </View>
             <Switch
               value={settings.hapticEnabled}
               onValueChange={(value) => updateSetting('hapticEnabled', value)}
-              trackColor={{ false: '#555', true: '#00A8E8' }}
-              thumbColor="#fff"
+              trackColor={{ false: theme.colors.border, true: theme.colors.primary }}
+              thumbColor={theme.colors.white}
             />
           </View>
-        </View>
+        </Card>
 
         {/* Speed Control */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Speed</Text>
-          <Text style={styles.valueLabel}>{settings.speed.toFixed(1)} Hz</Text>
+        <Card variant="elevated" style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Ionicons name="speedometer-outline" size={24} color={theme.colors.primary} />
+            <Text variant="h4" style={styles.sectionTitle}>
+              Speed
+            </Text>
+          </View>
+          <Text variant="h3" color="primary" style={styles.valueLabel}>
+            {settings.speed.toFixed(1)} Hz
+          </Text>
           <Slider
             style={styles.slider}
             minimumValue={0.5}
@@ -84,38 +213,58 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
             step={0.1}
             value={settings.speed}
             onValueChange={(value) => updateSetting('speed', value)}
-            minimumTrackTintColor="#00A8E8"
-            maximumTrackTintColor="#555"
-            thumbTintColor="#00A8E8"
+            minimumTrackTintColor={theme.colors.primary}
+            maximumTrackTintColor={theme.colors.border}
+            thumbTintColor={theme.colors.primary}
           />
           <View style={styles.rangeLabels}>
-            <Text style={styles.rangeLabelText}>0.5 Hz</Text>
-            <Text style={styles.rangeLabelText}>1.8 Hz</Text>
+            <Text variant="caption" color="textTertiary">
+              0.5 Hz (Slow)
+            </Text>
+            <Text variant="caption" color="textTertiary">
+              1.8 Hz (Fast)
+            </Text>
           </View>
-        </View>
+        </Card>
 
         {/* Visual Settings */}
         {settings.visualEnabled && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Visual Settings</Text>
+          <Card variant="elevated" style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <Ionicons name="color-palette-outline" size={24} color={theme.colors.primary} />
+              <Text variant="h4" style={styles.sectionTitle}>
+                Visual Settings
+              </Text>
+            </View>
 
-            <Text style={styles.subsectionTitle}>Dot Color</Text>
+            <Text variant="label" color="textSecondary" style={styles.subsectionTitle}>
+              Dot Color
+            </Text>
             <View style={styles.colorPalette}>
               {DOT_COLORS.map((color) => (
-                <TouchableOpacity
+                <Button
                   key={color.value}
+                  variant="ghost"
+                  onPress={() => updateSetting('dotColor', color.value)}
                   style={[
                     styles.colorSwatch,
                     { backgroundColor: color.value },
                     settings.dotColor === color.value && styles.colorSwatchSelected,
                   ]}
-                  onPress={() => updateSetting('dotColor', color.value)}
-                />
+                >
+                  {settings.dotColor === color.value && (
+                    <Ionicons name="checkmark" size={24} color={theme.colors.white} />
+                  )}
+                </Button>
               ))}
             </View>
 
-            <Text style={styles.subsectionTitle}>Dot Size</Text>
-            <Text style={styles.valueLabel}>{settings.dotSize}px</Text>
+            <Text variant="label" color="textSecondary" style={styles.subsectionTitle}>
+              Dot Size
+            </Text>
+            <Text variant="h3" color="primary" style={styles.valueLabel}>
+              {settings.dotSize}px
+            </Text>
             <Slider
               style={styles.slider}
               minimumValue={30}
@@ -123,20 +272,37 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
               step={5}
               value={settings.dotSize}
               onValueChange={(value) => updateSetting('dotSize', value)}
-              minimumTrackTintColor="#00A8E8"
-              maximumTrackTintColor="#555"
-              thumbTintColor="#00A8E8"
+              minimumTrackTintColor={theme.colors.primary}
+              maximumTrackTintColor={theme.colors.border}
+              thumbTintColor={theme.colors.primary}
             />
-          </View>
+            <View style={styles.rangeLabels}>
+              <Text variant="caption" color="textTertiary">
+                30px (Small)
+              </Text>
+              <Text variant="caption" color="textTertiary">
+                80px (Large)
+              </Text>
+            </View>
+          </Card>
         )}
 
         {/* Audio Settings */}
         {settings.audioEnabled && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Audio Settings</Text>
+          <Card variant="elevated" style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <Ionicons name="volume-high-outline" size={24} color={theme.colors.primary} />
+              <Text variant="h4" style={styles.sectionTitle}>
+                Audio Settings
+              </Text>
+            </View>
 
-            <Text style={styles.subsectionTitle}>Volume</Text>
-            <Text style={styles.valueLabel}>{Math.round(settings.audioVolume * 100)}%</Text>
+            <Text variant="label" color="textSecondary" style={styles.subsectionTitle}>
+              Volume
+            </Text>
+            <Text variant="h3" color="primary" style={styles.valueLabel}>
+              {Math.round(settings.audioVolume * 100)}%
+            </Text>
             <Slider
               style={styles.slider}
               minimumValue={0}
@@ -144,50 +310,76 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
               step={0.1}
               value={settings.audioVolume}
               onValueChange={(value) => updateSetting('audioVolume', value)}
-              minimumTrackTintColor="#00A8E8"
-              maximumTrackTintColor="#555"
-              thumbTintColor="#00A8E8"
+              minimumTrackTintColor={theme.colors.primary}
+              maximumTrackTintColor={theme.colors.border}
+              thumbTintColor={theme.colors.primary}
             />
-          </View>
+
+            {/* Audio Test Button - CRITICAL FEATURE FROM BRIEF */}
+            <Button
+              variant={testingAudio ? 'secondary' : 'outline'}
+              onPress={handleAudioTest}
+              icon={
+                <Ionicons
+                  name={testingAudio ? 'stop-circle' : 'play-circle'}
+                  size={20}
+                  color={testingAudio ? theme.colors.white : theme.colors.primary}
+                />
+              }
+              style={styles.audioTestButton}
+            >
+              {testingAudio ? 'Stop Audio Test' : 'Test Audio'}
+            </Button>
+            <Text variant="caption" color="textTertiary" align="center" style={styles.audioTestHint}>
+              Put on headphones to test stereo alternation
+            </Text>
+          </Card>
         )}
 
         {/* Haptic Settings */}
         {settings.hapticEnabled && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Haptic Settings</Text>
+          <Card variant="elevated" style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <Ionicons name="phone-portrait-outline" size={24} color={theme.colors.primary} />
+              <Text variant="h4" style={styles.sectionTitle}>
+                Haptic Settings
+              </Text>
+            </View>
 
-            <Text style={styles.subsectionTitle}>Intensity</Text>
+            <Text variant="label" color="textSecondary" style={styles.subsectionTitle}>
+              Intensity
+            </Text>
             <View style={styles.intensityButtons}>
               {(['Light', 'Medium', 'Heavy'] as const).map((intensity) => (
-                <TouchableOpacity
+                <Button
                   key={intensity}
-                  style={[
-                    styles.intensityButton,
-                    settings.hapticIntensity === intensity && styles.intensityButtonActive,
-                  ]}
+                  variant={settings.hapticIntensity === intensity ? 'primary' : 'outline'}
+                  size="small"
                   onPress={() => updateSetting('hapticIntensity', intensity)}
+                  style={styles.intensityButton}
                 >
-                  <Text
-                    style={[
-                      styles.intensityButtonText,
-                      settings.hapticIntensity === intensity &&
-                        styles.intensityButtonTextActive,
-                    ]}
-                  >
-                    {intensity}
-                  </Text>
-                </TouchableOpacity>
+                  {intensity}
+                </Button>
               ))}
             </View>
-          </View>
+          </Card>
         )}
 
         {/* Session Settings */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Session Settings</Text>
+        <Card variant="elevated" style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Ionicons name="time-outline" size={24} color={theme.colors.primary} />
+            <Text variant="h4" style={styles.sectionTitle}>
+              Session Settings
+            </Text>
+          </View>
 
-          <Text style={styles.subsectionTitle}>Set Duration</Text>
-          <Text style={styles.valueLabel}>{settings.setDuration} seconds</Text>
+          <Text variant="label" color="textSecondary" style={styles.subsectionTitle}>
+            Set Duration
+          </Text>
+          <Text variant="h3" color="primary" style={styles.valueLabel}>
+            {settings.setDuration} seconds
+          </Text>
           <Slider
             style={styles.slider}
             minimumValue={15}
@@ -195,13 +387,25 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
             step={1}
             value={settings.setDuration}
             onValueChange={(value) => updateSetting('setDuration', value)}
-            minimumTrackTintColor="#00A8E8"
-            maximumTrackTintColor="#555"
-            thumbTintColor="#00A8E8"
+            minimumTrackTintColor={theme.colors.primary}
+            maximumTrackTintColor={theme.colors.border}
+            thumbTintColor={theme.colors.primary}
           />
+          <View style={styles.rangeLabels}>
+            <Text variant="caption" color="textTertiary">
+              15s
+            </Text>
+            <Text variant="caption" color="textTertiary">
+              45s
+            </Text>
+          </View>
 
-          <Text style={styles.subsectionTitle}>Rest Interval</Text>
-          <Text style={styles.valueLabel}>{settings.restInterval} seconds</Text>
+          <Text variant="label" color="textSecondary" style={styles.subsectionTitle}>
+            Rest Interval
+          </Text>
+          <Text variant="h3" color="primary" style={styles.valueLabel}>
+            {settings.restInterval} seconds
+          </Text>
           <Slider
             style={styles.slider}
             minimumValue={5}
@@ -209,136 +413,150 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
             step={1}
             value={settings.restInterval}
             onValueChange={(value) => updateSetting('restInterval', value)}
-            minimumTrackTintColor="#00A8E8"
-            maximumTrackTintColor="#555"
-            thumbTintColor="#00A8E8"
+            minimumTrackTintColor={theme.colors.primary}
+            maximumTrackTintColor={theme.colors.border}
+            thumbTintColor={theme.colors.primary}
           />
+          <View style={styles.rangeLabels}>
+            <Text variant="caption" color="textTertiary">
+              5s
+            </Text>
+            <Text variant="caption" color="textTertiary">
+              30s
+            </Text>
+          </View>
+        </Card>
+
+        {/* Info Box */}
+        <View style={styles.infoBox}>
+          <Ionicons
+            name="information-circle-outline"
+            size={20}
+            color={theme.colors.primary}
+            style={styles.infoIcon}
+          />
+          <Text variant="caption" color="textSecondary" style={styles.infoText}>
+            Settings are automatically saved. Changes take effect on your next session.
+          </Text>
         </View>
       </ScrollView>
-    </View>
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a1a',
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 60,
-    paddingBottom: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#333',
-  },
-  headerTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#fff',
-  },
-  closeButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-  },
-  closeButtonText: {
-    fontSize: 16,
-    color: '#00A8E8',
-    fontWeight: '600',
+    paddingHorizontal: theme.layout.screenPadding,
+    paddingTop: theme.spacing[12],
+    paddingBottom: theme.spacing[4],
   },
   scrollView: {
     flex: 1,
   },
   content: {
-    paddingBottom: 40,
+    paddingHorizontal: theme.layout.screenPadding,
+    paddingBottom: theme.spacing[10],
+    gap: theme.spacing[4],
   },
   section: {
-    paddingHorizontal: 20,
-    paddingVertical: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#333',
+    marginBottom: theme.spacing[4],
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing[2],
+    marginBottom: theme.spacing[4],
   },
   sectionTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#fff',
-    marginBottom: 16,
+    flex: 1,
   },
   subsectionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#ccc',
-    marginTop: 16,
-    marginBottom: 8,
+    marginTop: theme.spacing[4],
+    marginBottom: theme.spacing[2],
   },
   settingRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: theme.spacing[3],
   },
-  settingLabel: {
-    fontSize: 16,
-    color: '#fff',
+  settingLabelContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing[2],
   },
   slider: {
     width: '100%',
     height: 40,
   },
   valueLabel: {
-    fontSize: 16,
-    color: '#00A8E8',
-    fontWeight: '600',
-    marginBottom: 8,
+    marginBottom: theme.spacing[2],
   },
   rangeLabels: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-  },
-  rangeLabelText: {
-    fontSize: 12,
-    color: '#999',
+    marginTop: theme.spacing[1],
   },
   colorPalette: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 12,
-    marginTop: 8,
+    gap: theme.spacing[3],
+    marginTop: theme.spacing[2],
   },
   colorSwatch: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: 56,
+    height: 56,
+    borderRadius: theme.borderRadius.full,
     borderWidth: 2,
     borderColor: 'transparent',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   colorSwatchSelected: {
-    borderColor: '#fff',
+    borderColor: theme.colors.white,
     borderWidth: 3,
   },
   intensityButtons: {
     flexDirection: 'row',
-    gap: 12,
-    marginTop: 8,
+    gap: theme.spacing[3],
+    marginTop: theme.spacing[2],
   },
   intensityButton: {
     flex: 1,
-    paddingVertical: 12,
-    borderRadius: 8,
-    backgroundColor: '#333',
-    alignItems: 'center',
   },
-  intensityButtonActive: {
-    backgroundColor: '#00A8E8',
+  presetButtons: {
+    flexDirection: 'row',
+    gap: theme.spacing[3],
   },
-  intensityButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#999',
+  presetButton: {
+    flex: 1,
   },
-  intensityButtonTextActive: {
-    color: '#fff',
+  audioTestButton: {
+    marginTop: theme.spacing[4],
+  },
+  audioTestHint: {
+    marginTop: theme.spacing[2],
+  },
+  infoBox: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    backgroundColor: theme.colors.primary10,
+    padding: theme.spacing[4],
+    borderRadius: theme.borderRadius.md,
+    marginTop: theme.spacing[4],
+  },
+  infoIcon: {
+    marginRight: theme.spacing[2],
+    marginTop: 2,
+  },
+  infoText: {
+    flex: 1,
+    lineHeight: 18,
   },
 });
