@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { View, ScrollView, StyleSheet, Switch } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import Slider from '@react-native-community/slider';
 import { Button } from '../components/ui/Button';
@@ -93,10 +92,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   };
 
   return (
-    <LinearGradient
-      colors={[theme.colors.backgroundLight, theme.colors.background]}
-      style={styles.container}
-    >
+    <View style={styles.container}>
       {/* Hidden AudioEngine for testing */}
       <View style={{ height: 0, overflow: 'hidden' }}>
         <AudioEngine
@@ -440,13 +436,14 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
           </Text>
         </View>
       </ScrollView>
-    </LinearGradient>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: theme.colors.background,
   },
   header: {
     flexDirection: 'row',
