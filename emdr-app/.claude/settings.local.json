@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(adb devices:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(npx expo start:*)",
+      "Bash(timeout 10 cmd:*)",
+      "Bash(npm install:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
