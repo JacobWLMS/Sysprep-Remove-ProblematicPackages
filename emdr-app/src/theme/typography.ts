@@ -32,69 +32,71 @@ export const lineHeights = {
 } as const;
 
 export const typography = {
-  // Display - for huge numbers/stats
+  // Display - for huge numbers/stats (softer, more calming)
   display: {
     fontSize: fontSizes['8xl'],
-    fontWeight: fontWeights.bold,
-    lineHeight: fontSizes['8xl'] * lineHeights.tight,
-    letterSpacing: -2,
+    fontWeight: fontWeights.semibold,  // Reduced from bold
+    lineHeight: fontSizes['8xl'] * lineHeights.normal,  // Increased for breathing room
+    letterSpacing: -1,  // Reduced negative spacing for friendlier feel
   },
   displayMedium: {
     fontSize: fontSizes['7xl'],
-    fontWeight: fontWeights.bold,
-    lineHeight: fontSizes['7xl'] * lineHeights.tight,
-    letterSpacing: -1.5,
+    fontWeight: fontWeights.semibold,  // Reduced from bold
+    lineHeight: fontSizes['7xl'] * lineHeights.normal,
+    letterSpacing: -0.5,  // Reduced negative spacing
   },
 
-  // Headings
+  // Headings (gentler weights, more breathing room)
   h1: {
     fontSize: fontSizes['5xl'],
-    fontWeight: fontWeights.bold,
-    lineHeight: fontSizes['5xl'] * lineHeights.tight,
-    letterSpacing: -1,
+    fontWeight: fontWeights.semibold,  // Reduced from bold
+    lineHeight: fontSizes['5xl'] * lineHeights.normal,  // More space
+    letterSpacing: -0.5,  // Gentler spacing
   },
   h2: {
     fontSize: fontSizes['4xl'],
-    fontWeight: fontWeights.bold,
-    lineHeight: fontSizes['4xl'] * lineHeights.tight,
-    letterSpacing: -0.5,
+    fontWeight: fontWeights.semibold,  // Reduced from bold
+    lineHeight: fontSizes['4xl'] * lineHeights.normal,
+    letterSpacing: 0,  // Neutral spacing
   },
   h3: {
     fontSize: fontSizes['3xl'],
-    fontWeight: fontWeights.semibold,
-    lineHeight: fontSizes['3xl'] * lineHeights.tight,
+    fontWeight: fontWeights.medium,  // Reduced from semibold
+    lineHeight: fontSizes['3xl'] * lineHeights.normal,
+    letterSpacing: 0,
   },
   h4: {
     fontSize: fontSizes['2xl'],
-    fontWeight: fontWeights.semibold,
-    lineHeight: fontSizes['2xl'] * lineHeights.tight,
+    fontWeight: fontWeights.medium,  // Reduced from semibold
+    lineHeight: fontSizes['2xl'] * lineHeights.normal,
+    letterSpacing: 0,
   },
   h5: {
     fontSize: fontSizes.xl,
-    fontWeight: fontWeights.semibold,
-    lineHeight: fontSizes.xl * lineHeights.normal,
+    fontWeight: fontWeights.medium,  // Reduced from semibold
+    lineHeight: fontSizes.xl * lineHeights.relaxed,  // More space
   },
   h6: {
     fontSize: fontSizes.lg,
-    fontWeight: fontWeights.semibold,
-    lineHeight: fontSizes.lg * lineHeights.normal,
+    fontWeight: fontWeights.medium,  // Reduced from semibold
+    lineHeight: fontSizes.lg * lineHeights.relaxed,
   },
 
-  // Body text
+  // Body text (increased size and line height for comfort)
   body: {
-    fontSize: fontSizes.base,
-    fontWeight: fontWeights.regular,
-    lineHeight: fontSizes.base * lineHeights.relaxed,
-  },
-  bodyLarge: {
-    fontSize: fontSizes.md,
+    fontSize: fontSizes.md,  // Increased from base for better readability
     fontWeight: fontWeights.regular,
     lineHeight: fontSizes.md * lineHeights.relaxed,
   },
-  bodySmall: {
-    fontSize: fontSizes.sm,
+  bodyLarge: {
+    fontSize: fontSizes.lg,  // Increased from md
     fontWeight: fontWeights.regular,
-    lineHeight: fontSizes.sm * lineHeights.normal,
+    lineHeight: fontSizes.lg * lineHeights.relaxed,
+  },
+  bodySmall: {
+    fontSize: fontSizes.base,  // Increased from sm
+    fontWeight: fontWeights.regular,
+    lineHeight: fontSizes.base * lineHeights.relaxed,  // More space
   },
 
   // Labels
@@ -114,23 +116,23 @@ export const typography = {
     lineHeight: fontSizes.sm * lineHeights.normal,
   },
 
-  // Button text
+  // Button text (softer, more inviting)
   button: {
     fontSize: fontSizes.md,
-    fontWeight: fontWeights.semibold,
-    lineHeight: fontSizes.md * lineHeights.tight,
-    letterSpacing: 0.3,
+    fontWeight: fontWeights.medium,  // Reduced from semibold
+    lineHeight: fontSizes.md * lineHeights.normal,
+    letterSpacing: 0.2,  // Slightly reduced
   },
   buttonLarge: {
     fontSize: fontSizes.lg,
-    fontWeight: fontWeights.bold,
-    lineHeight: fontSizes.lg * lineHeights.tight,
-    letterSpacing: 0.3,
+    fontWeight: fontWeights.semibold,  // Reduced from bold
+    lineHeight: fontSizes.lg * lineHeights.normal,
+    letterSpacing: 0.2,
   },
   buttonSmall: {
     fontSize: fontSizes.base,
-    fontWeight: fontWeights.semibold,
-    lineHeight: fontSizes.base * lineHeights.tight,
+    fontWeight: fontWeights.medium,  // Reduced from semibold
+    lineHeight: fontSizes.base * lineHeights.normal,
   },
 
   // Caption

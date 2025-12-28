@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Text } from '../components/ui/Text';
+import { Logo } from '../components/Logo';
 import { useTheme } from '../theme';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -26,9 +27,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Header */}
+        {/* Logo and Header */}
         <View style={styles.header}>
-          <Text variant="h1" color="brown">
+          <Logo size={IS_SMALL_SCREEN ? 70 : 90} />
+          <Text variant="h1" color="brown" style={styles.title}>
             EMDR Therapy
           </Text>
           <Text variant="bodyLarge" color="textSecondary" style={styles.subtitle}>
@@ -132,10 +134,16 @@ const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
       gap: theme.spacing[5],
     },
     header: {
-      gap: theme.spacing[2],
+      alignItems: 'center',
+      gap: theme.spacing[3],
+      marginBottom: theme.spacing[2],
+    },
+    title: {
+      marginTop: theme.spacing[2],
     },
     subtitle: {
       lineHeight: 24,
+      textAlign: 'center',
     },
     welcomeCard: {
       gap: theme.spacing[3],

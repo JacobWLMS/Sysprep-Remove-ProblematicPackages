@@ -9,6 +9,8 @@ import { HapticEngine } from '../components/HapticEngine';
 import { SessionTimer } from '../components/SessionTimer';
 import { QuickSUDCheck } from '../components/QuickSUDCheck';
 import { GoalReminder } from '../components/GoalReminder';
+import { SessionInstructions } from '../components/SessionInstructions';
+import { PreSessionCountdown } from '../components/PreSessionCountdown';
 import { Button } from '../components/ui/Button';
 import { Text } from '../components/ui/Text';
 import { useBilateralStimulation, StimulationSide } from '../hooks/useBilateralStimulation';
@@ -38,6 +40,8 @@ export const SessionScreen: React.FC<SessionScreenProps> = ({
   const [showSUDCheck, setShowSUDCheck] = useState(false);
   const [showGoalReminder, setShowGoalReminder] = useState(false);
   const [hasShownSUDForSet, setHasShownSUDForSet] = useState(false);
+  const [showInstructions, setShowInstructions] = useState(true);
+  const [showCountdown, setShowCountdown] = useState(false);
 
   const {
     sessionState,
@@ -56,15 +60,20 @@ export const SessionScreen: React.FC<SessionScreenProps> = ({
     setCurrentSide(side);
   }, []);
 
+  // Only use the bilateral stimulation hook if visual is disabled
+  // When visual is enabled, it will drive the timing via callbacks for perfect sync
   const { currentSide: blsSide } = useBilateralStimulation({
-    isActive: sessionState.isActive && !sessionState.isPaused && !sessionState.isResting,
+    isActive: !settings.visualEnabled && sessionState.isActive && !sessionState.isPaused && !sessionState.isResting,
     speed: settings.speed,
     onTrigger: handleTrigger,
   });
 
   useEffect(() => {
-    setCurrentSide(blsSide);
-  }, [blsSide]);
+    // Only sync from hook if visual is disabled
+    if (!settings.visualEnabled) {
+      setCurrentSide(blsSide);
+    }
+  }, [blsSide, settings.visualEnabled]);
 
   // Show goal reminder during rest periods (if goal exists)
   useEffect(() => {
@@ -111,12 +120,15 @@ export const SessionScreen: React.FC<SessionScreenProps> = ({
     };
   }, []);
 
-  useEffect(() => {
-    // Auto-start session
-    if (!sessionState.isActive && sessionState.currentSet === 0) {
-      startSession();
-    }
-  }, []);
+  const handleInstructionsContinue = () => {
+    setShowInstructions(false);
+    setShowCountdown(true);
+  };
+
+  const handleCountdownComplete = () => {
+    setShowCountdown(false);
+    startSession();
+  };
 
   const handleTogglePause = () => {
     if (sessionState.isPaused) {
@@ -187,6 +199,7 @@ export const SessionScreen: React.FC<SessionScreenProps> = ({
             speed={settings.speed}
             dotColor={settings.dotColor}
             dotSize={settings.dotSize}
+            onSideTrigger={handleTrigger}
           />
         )}
       </View>
@@ -229,6 +242,19 @@ export const SessionScreen: React.FC<SessionScreenProps> = ({
           onSkip={handleSUDSkip}
           initialValue={midSUDs.length > 0 ? midSUDs[midSUDs.length - 1].value : preSUD}
         />
+      )}
+
+      {/* Instructions Overlay */}
+      {showInstructions && (
+        <SessionInstructions
+          onContinue={handleInstructionsContinue}
+          settings={settings}
+        />
+      )}
+
+      {/* Countdown Overlay */}
+      {showCountdown && (
+        <PreSessionCountdown onComplete={handleCountdownComplete} />
       )}
 
       {/* Control Buttons */}
