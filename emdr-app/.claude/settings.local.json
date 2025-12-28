@@ -11,7 +11,10 @@
       "Bash(echo:*)",
       "Bash(npm uninstall:*)",
       "Bash(npx expo install:*)",
-      "Bash(npx expo run:android:*)"
+      "Bash(npx expo run:android:*)",
+      "Bash(npx expo-doctor)",
+      "Bash(npx expo prebuild:*)",
+      "Bash(npx expo-doctor:*)"
     ],
     "deny": [],
     "ask": []

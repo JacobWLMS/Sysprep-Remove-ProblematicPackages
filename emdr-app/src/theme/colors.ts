@@ -1,71 +1,80 @@
 export const colors = {
-  // Primary - Calming blue (like Headspace/Calm)
-  primary: '#00A8E8',
-  primaryLight: '#33BCEE',
-  primaryDark: '#0080B3',
-  primary10: 'rgba(0, 168, 232, 0.1)',
-  primary20: 'rgba(0, 168, 232, 0.2)',
-  primary30: 'rgba(0, 168, 232, 0.3)',
-  primary50: 'rgba(0, 168, 232, 0.5)',
+  // Primary - Calming olive green (wellness aesthetic)
+  primary: '#8BA888',
+  primaryLight: '#A8C4A5',
+  primaryDark: '#6E8C6B',
+  primary10: 'rgba(139, 168, 136, 0.1)',
+  primary20: 'rgba(139, 168, 136, 0.2)',
+  primary30: 'rgba(139, 168, 136, 0.3)',
+  primary50: 'rgba(139, 168, 136, 0.5)',
 
-  // Secondary - Warm accent
-  secondary: '#9C27B0',
-  secondaryLight: '#BA68C8',
-  secondaryDark: '#7B1FA2',
+  // Secondary - Warm orange accent
+  secondary: '#E89C3B',
+  secondaryLight: '#F4B968',
+  secondaryDark: '#C67E1F',
 
-  // Success - Calm green
-  success: '#00C853',
-  successLight: '#5EFC82',
-  successDark: '#009624',
+  // Success - Soft green
+  success: '#8BA888',
+  successLight: '#A8C4A5',
+  successDark: '#6E8C6B',
 
   // Warning - Gentle orange
-  warning: '#FF6F00',
-  warningLight: '#FFA040',
-  warningDark: '#C43E00',
+  warning: '#E89C3B',
+  warningLight: '#F4B968',
+  warningDark: '#C67E1F',
 
-  // Error - Soft red
-  error: '#F50057',
-  errorLight: '#FF5983',
-  errorDark: '#C51162',
+  // Error - Soft coral/rose
+  error: '#E88B8B',
+  errorLight: '#F4A8A8',
+  errorDark: '#C66E6E',
 
-  // SUD Scale Colors (gradient from calm to distressed)
+  // SUD Scale Colors (gradient from calm to distressed) - warm, earthy tones
   sud: {
-    calm: '#00C853',      // 0-2: Green
-    mild: '#64DD17',      // 3-4: Light green
-    moderate: '#FFD600',  // 5-6: Yellow
-    high: '#FF6F00',      // 7-8: Orange
-    severe: '#F50057',    // 9-10: Red
+    calm: '#8BA888',      // 0-2: Calm green
+    mild: '#B5C99A',      // 3-4: Light green
+    moderate: '#F4D58D',  // 5-6: Soft yellow
+    high: '#E89C3B',      // 7-8: Warm orange
+    severe: '#E88B8B',    // 9-10: Soft coral
   },
 
-  // Neutrals
-  background: '#0a0a0a',
-  backgroundLight: '#1a1a1a',
-  backgroundElevated: '#2a2a2a',
+  // Neutrals - warm, earthy palette
+  background: '#F5F1ED',          // Cream/beige
+  backgroundLight: '#FFFBF7',     // Light cream
+  backgroundElevated: '#FFFFFF',  // Pure white for cards
 
-  surface: '#1a1a1a',
-  surfaceLight: '#2a2a2a',
-  surfaceDark: '#0a0a0a',
+  surface: '#FFFFFF',
+  surfaceLight: '#FFFBF7',
+  surfaceDark: '#F5F1ED',
 
-  // Text
-  textPrimary: '#FFFFFF',
-  textSecondary: '#CCCCCC',
-  textTertiary: '#999999',
-  textDisabled: '#666666',
+  // Text - warm browns
+  textPrimary: '#4A3F35',         // Dark brown
+  textSecondary: '#6B5D52',       // Medium brown
+  textTertiary: '#9B8E81',        // Light brown
+  textDisabled: '#C4BBB2',        // Very light brown
 
   // Borders
-  border: '#333333',
-  borderLight: '#444444',
-  borderDark: '#222222',
+  border: '#E8DFD7',
+  borderLight: '#F0E9E2',
+  borderDark: '#D4C9BF',
 
   // Overlays
-  overlay: 'rgba(0, 0, 0, 0.5)',
-  overlayLight: 'rgba(0, 0, 0, 0.3)',
-  overlayDark: 'rgba(0, 0, 0, 0.7)',
+  overlay: 'rgba(74, 63, 53, 0.5)',
+  overlayLight: 'rgba(74, 63, 53, 0.3)',
+  overlayDark: 'rgba(74, 63, 53, 0.7)',
 
   // Semantic colors
-  rest: '#FFD600',       // Rest period indicator
-  active: '#00A8E8',     // Active session indicator
-  paused: '#999999',     // Paused state
+  rest: '#F4D58D',       // Rest period indicator - soft yellow
+  active: '#8BA888',     // Active session indicator - green
+  paused: '#9B8E81',     // Paused state - light brown
+
+  // Accent colors for variety
+  purple: '#B8A8D9',     // Soft purple accent
+  purpleLight: '#D4C9ED',
+  purpleDark: '#9985C4',
+
+  brown: '#5A4A3F',      // Rich brown
+  brownLight: '#6B5D52',
+  brownDark: '#4A3F35',
 
   // Transparent
   transparent: 'transparent',

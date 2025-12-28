@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import { SUDSlider } from '../components/SUDSlider';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
@@ -33,10 +32,7 @@ export const PostSessionSUDScreen: React.FC<PostSessionSUDScreenProps> = ({
   };
 
   return (
-    <LinearGradient
-      colors={[theme.colors.backgroundLight, theme.colors.background]}
-      style={styles.container}
-    >
+    <View style={styles.container}>
       <View style={styles.content}>
         <View style={styles.mainContent}>
           <View style={styles.titleContainer}>
@@ -75,13 +71,14 @@ export const PostSessionSUDScreen: React.FC<PostSessionSUDScreenProps> = ({
           </Button>
         </View>
       </View>
-    </LinearGradient>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: theme.colors.background,
   },
   content: {
     flex: 1,

@@ -5,6 +5,8 @@ import { theme } from '../../theme';
 export interface TextProps {
   children: React.ReactNode;
   variant?:
+    | 'display'
+    | 'displayMedium'
     | 'h1'
     | 'h2'
     | 'h3'

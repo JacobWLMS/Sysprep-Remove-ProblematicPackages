@@ -1,7 +1,7 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
+import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Text } from '../components/ui/Text';
 import { theme } from '../theme';
@@ -9,137 +9,194 @@ import { theme } from '../theme';
 interface HomeScreenProps {
   onStartSession: () => void;
   onOpenSettings: () => void;
+  onOpenStats: () => void;
 }
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({
   onStartSession,
   onOpenSettings,
+  onOpenStats,
 }) => {
   return (
-    <LinearGradient
-      colors={[theme.colors.backgroundLight, theme.colors.background]}
-      style={styles.container}
-    >
-      <View style={styles.content}>
-        <View style={styles.titleContainer}>
-          <Text variant="h1" align="center" style={styles.title}>
-            EMDR
+    <View style={styles.container}>
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        {/* Header */}
+        <View style={styles.header}>
+          <Text variant="h1" color="brown">
+            EMDR Therapy
           </Text>
-          <Text variant="bodyLarge" color="textTertiary" align="center" style={styles.subtitle}>
-            Bilateral Stimulation
+          <Text variant="bodyLarge" color="textSecondary" style={styles.subtitle}>
+            Bilateral Stimulation for Healing
           </Text>
         </View>
 
-        <View style={styles.description}>
-          <View style={styles.descriptionItem}>
-            <Ionicons name="eye-outline" size={32} color={theme.colors.primary} />
-            <Text variant="body" color="textSecondary" align="center">
+        {/* Welcome Card */}
+        <Card variant="elevated" style={styles.welcomeCard}>
+          <Text variant="h4" color="textPrimary" style={styles.welcomeTitle}>
+            Welcome to Your Healing Journey
+          </Text>
+          <Text variant="body" color="textSecondary" style={styles.welcomeText}>
+            Begin a session to experience synchronized visual, auditory, and tactile bilateral stimulation
+            for EMDR therapy.
+          </Text>
+        </Card>
+
+        {/* Three Modalities */}
+        <View style={styles.modalitiesContainer}>
+          <Card variant="elevated" style={styles.modalityCard}>
+            <View style={[styles.iconCircle, { backgroundColor: theme.colors.primary20 }]}>
+              <Ionicons name="eye-outline" size={32} color={theme.colors.primary} />
+            </View>
+            <Text variant="h5" color="textPrimary" style={styles.modalityTitle}>
               Visual
             </Text>
-          </View>
-          <View style={styles.descriptionItem}>
-            <Ionicons name="headset-outline" size={32} color={theme.colors.primary} />
-            <Text variant="body" color="textSecondary" align="center">
+            <Text variant="caption" color="textSecondary" align="center">
+              Smooth animated dot movement
+            </Text>
+          </Card>
+
+          <Card variant="elevated" style={styles.modalityCard}>
+            <View style={[styles.iconCircle, { backgroundColor: 'rgba(232, 156, 59, 0.2)' }]}>
+              <Ionicons name="headset-outline" size={32} color={theme.colors.secondary} />
+            </View>
+            <Text variant="h5" color="textPrimary" style={styles.modalityTitle}>
               Auditory
             </Text>
-          </View>
-          <View style={styles.descriptionItem}>
-            <Ionicons name="hand-left-outline" size={32} color={theme.colors.primary} />
-            <Text variant="body" color="textSecondary" align="center">
+            <Text variant="caption" color="textSecondary" align="center">
+              Alternating stereo tones
+            </Text>
+          </Card>
+
+          <Card variant="elevated" style={styles.modalityCard}>
+            <View style={[styles.iconCircle, { backgroundColor: 'rgba(184, 168, 217, 0.2)' }]}>
+              <Ionicons name="hand-left-outline" size={32} color={theme.colors.purple} />
+            </View>
+            <Text variant="h5" color="textPrimary" style={styles.modalityTitle}>
               Tactile
             </Text>
+            <Text variant="caption" color="textSecondary" align="center">
+              Gentle haptic feedback
+            </Text>
+          </Card>
+        </View>
+
+        {/* Start Button */}
+        <Button
+          size="large"
+          fullWidth
+          onPress={onStartSession}
+          icon={<Ionicons name="play-circle" size={28} color={theme.colors.white} />}
+          style={styles.startButton}
+        >
+          Start Your Session
+        </Button>
+
+        {/* Stats Button */}
+        <Button
+          variant="secondary"
+          size="large"
+          fullWidth
+          onPress={onOpenStats}
+          icon={<Ionicons name="stats-chart" size={24} color={theme.colors.white} />}
+        >
+          View Your Progress
+        </Button>
+
+        {/* Settings Button */}
+        <Button
+          variant="outline"
+          size="large"
+          fullWidth
+          onPress={onOpenSettings}
+          icon={<Ionicons name="settings-outline" size={24} color={theme.colors.primary} />}
+        >
+          Customize Settings
+        </Button>
+
+        {/* Info Box */}
+        <Card variant="default" style={styles.infoCard}>
+          <View style={styles.infoHeader}>
+            <Ionicons
+              name="information-circle-outline"
+              size={20}
+              color={theme.colors.primary}
+            />
+            <Text variant="labelSmall" color="primary">
+              Professional Guidance Recommended
+            </Text>
           </View>
-        </View>
-
-        <View style={styles.infoBox}>
-          <Text variant="body" color="textSecondary" align="center" style={styles.infoText}>
-            A therapeutic tool for Eye Movement Desensitization and Reprocessing therapy.
-            Combines three modalities of bilateral stimulation.
+          <Text variant="caption" color="textSecondary" style={styles.infoText}>
+            This app is designed to support EMDR (Eye Movement Desensitization and Reprocessing)
+            therapy. For best results, use under the guidance of a trained mental health professional.
           </Text>
-        </View>
-
-        <View style={styles.buttonContainer}>
-          <Button
-            size="large"
-            fullWidth
-            onPress={onStartSession}
-            icon={<Ionicons name="play-circle" size={28} color={theme.colors.white} />}
-          >
-            Start Session
-          </Button>
-
-          <Button
-            variant="outline"
-            size="large"
-            fullWidth
-            onPress={onOpenSettings}
-            icon={<Ionicons name="settings-outline" size={24} color={theme.colors.primary} />}
-          >
-            Settings
-          </Button>
-        </View>
-
-        <View style={styles.footer}>
-          <Ionicons name="information-circle-outline" size={16} color={theme.colors.textTertiary} />
-          <Text variant="caption" color="textTertiary" align="center" style={styles.footerText}>
-            This app is designed to support EMDR therapy.{'\n'}
-            Please use under the guidance of a trained professional.
-          </Text>
-        </View>
-      </View>
-    </LinearGradient>
+        </Card>
+      </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: theme.colors.background,
   },
   content: {
-    flex: 1,
     paddingHorizontal: theme.layout.screenPadding,
-    paddingVertical: theme.spacing[12],
-    justifyContent: 'space-between',
+    paddingTop: theme.spacing[12],
+    paddingBottom: theme.spacing[8],
+    gap: theme.spacing[6],
   },
-  titleContainer: {
-    alignItems: 'center',
-    marginTop: theme.spacing[10],
-  },
-  title: {
-    color: theme.colors.primary,
-    letterSpacing: 4,
-    marginBottom: theme.spacing[2],
+  header: {
+    gap: theme.spacing[2],
   },
   subtitle: {
-    letterSpacing: 2,
-    textTransform: 'uppercase',
-  },
-  description: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingVertical: theme.spacing[8],
-  },
-  descriptionItem: {
-    alignItems: 'center',
-    gap: theme.spacing[2],
-  },
-  infoBox: {
-    backgroundColor: theme.colors.primary10,
-    padding: theme.spacing[5],
-    borderRadius: theme.borderRadius.md,
-  },
-  infoText: {
     lineHeight: 24,
   },
-  buttonContainer: {
+  welcomeCard: {
+    padding: theme.layout.cardPadding,
+    gap: theme.spacing[3],
+  },
+  welcomeTitle: {
+    marginBottom: theme.spacing[1],
+  },
+  welcomeText: {
+    lineHeight: 22,
+  },
+  modalitiesContainer: {
+    flexDirection: 'row',
     gap: theme.spacing[4],
   },
-  footer: {
-    paddingTop: theme.spacing[5],
+  modalityCard: {
+    flex: 1,
+    padding: theme.spacing[5],
+    alignItems: 'center',
+    gap: theme.spacing[3],
+  },
+  iconCircle: {
+    width: 64,
+    height: 64,
+    borderRadius: theme.borderRadius.full,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: theme.spacing[2],
+  },
+  modalityTitle: {
+    marginBottom: theme.spacing[1],
+  },
+  startButton: {
+    marginTop: theme.spacing[4],
+  },
+  infoCard: {
+    padding: theme.spacing[5],
+    backgroundColor: theme.colors.primary10,
+    gap: theme.spacing[3],
+  },
+  infoHeader: {
+    flexDirection: 'row',
     alignItems: 'center',
     gap: theme.spacing[2],
   },
-  footerText: {
+  infoText: {
     lineHeight: 18,
   },
 });

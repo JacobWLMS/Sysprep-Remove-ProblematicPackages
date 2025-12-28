@@ -1,4 +1,4 @@
-// 4px base spacing scale
+// 4px base spacing scale - more generous for wellness aesthetic
 export const spacing = {
   0: 0,
   1: 4,
@@ -14,26 +14,30 @@ export const spacing = {
   16: 64,
   20: 80,
   24: 96,
+  32: 128,
 } as const;
 
-// Semantic spacing
+// Semantic spacing - more generous for calm aesthetic
 export const layout = {
-  screenPadding: spacing[5],      // 20px
-  cardPadding: spacing[4],         // 16px
-  sectionSpacing: spacing[6],      // 24px
-  itemSpacing: spacing[3],         // 12px
-  minTouchTarget: 44,              // Apple HIG minimum
+  screenPadding: spacing[6],       // 24px (more generous)
+  cardPadding: spacing[6],          // 24px (more generous)
+  sectionSpacing: spacing[8],       // 32px (more generous)
+  itemSpacing: spacing[4],          // 16px (more generous)
+  minTouchTarget: 48,               // Slightly larger for easier tapping
 } as const;
 
+// More rounded corners for softer aesthetic
 export const borderRadius = {
   none: 0,
-  sm: 8,
-  md: 12,
-  lg: 16,
-  xl: 24,
+  sm: 12,
+  md: 16,
+  lg: 24,
+  xl: 32,
+  '2xl': 40,
   full: 9999,
 } as const;
 
+// Softer, more subtle shadows
 export const shadows = {
   none: {
     shadowColor: 'transparent',
@@ -43,31 +47,31 @@ export const shadows = {
     elevation: 0,
   },
   sm: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.18,
-    shadowRadius: 1,
-    elevation: 1,
+    shadowColor: '#4A3F35',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
   },
   md: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 3,
+    shadowColor: '#4A3F35',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+    elevation: 4,
   },
   lg: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4.65,
-    elevation: 5,
+    shadowColor: '#4A3F35',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.16,
+    shadowRadius: 16,
+    elevation: 6,
   },
   xl: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.37,
-    shadowRadius: 7.49,
+    shadowColor: '#4A3F35',
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.2,
+    shadowRadius: 24,
     elevation: 8,
   },
 } as const;
