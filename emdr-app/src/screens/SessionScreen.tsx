@@ -32,6 +32,7 @@ export const SessionScreen: React.FC<SessionScreenProps> = ({
   onBack,
 }) => {
   const { theme } = useTheme();
+  const styles = React.useMemo(() => createStyles(theme), [theme]);
   const [currentSide, setCurrentSide] = React.useState<StimulationSide>('left');
   const [midSUDs, setMidSUDs] = useState<SUDRating[]>([]);
   const [showSUDCheck, setShowSUDCheck] = useState(false);
@@ -260,48 +261,49 @@ export const SessionScreen: React.FC<SessionScreenProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.colors.black,
-  },
-  header: {
-    position: 'absolute',
-    top: theme.spacing[5],
-    left: theme.spacing[5],
-    right: theme.spacing[5],
-    zIndex: 10,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  backButton: {
-    backgroundColor: theme.colors.transparent,
-  },
-  stimulusContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  overlay: {
-    position: 'absolute',
-    top: 80,
-    left: 0,
-    right: 0,
-    zIndex: 5,
-  },
-  controls: {
-    position: 'absolute',
-    bottom: theme.spacing[10],
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: theme.spacing[4],
-    paddingHorizontal: theme.spacing[5],
-    zIndex: 10,
-  },
-  controlButton: {
-    minWidth: 140,
-  },
-});
+const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme.colors.background, // Use theme background for cohesive feel
+    },
+    header: {
+      position: 'absolute',
+      top: theme.spacing[5],
+      left: theme.spacing[5],
+      right: theme.spacing[5],
+      zIndex: 10,
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    backButton: {
+      backgroundColor: theme.colors.transparent,
+    },
+    stimulusContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    overlay: {
+      position: 'absolute',
+      top: 80,
+      left: 0,
+      right: 0,
+      zIndex: 5,
+    },
+    controls: {
+      position: 'absolute',
+      bottom: theme.spacing[10],
+      left: 0,
+      right: 0,
+      flexDirection: 'row',
+      justifyContent: 'center',
+      gap: theme.spacing[4],
+      paddingHorizontal: theme.spacing[5],
+      zIndex: 10,
+    },
+    controlButton: {
+      minWidth: 140,
+    },
+  });

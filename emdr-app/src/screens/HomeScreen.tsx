@@ -97,28 +97,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           Start Your Session
         </Button>
 
-        {/* Stats Button */}
-        <Button
-          variant="secondary"
-          size="large"
-          fullWidth
-          onPress={onOpenStats}
-          icon={<Ionicons name="stats-chart" size={24} color={theme.colors.white} />}
-        >
-          View Your Progress
-        </Button>
-
-        {/* Settings Button */}
-        <Button
-          variant="outline"
-          size="large"
-          fullWidth
-          onPress={onOpenSettings}
-          icon={<Ionicons name="settings-outline" size={24} color={theme.colors.primary} />}
-        >
-          Customize Settings
-        </Button>
-
         {/* Info Box */}
         <Card variant="default" style={styles.infoCard}>
           <View style={styles.infoHeader}>
