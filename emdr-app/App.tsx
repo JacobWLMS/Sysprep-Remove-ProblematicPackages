@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { HomeScreen } from './src/screens/HomeScreen';
 import { SettingsScreen } from './src/screens/SettingsScreen';
-import { PreSessionSUDScreen } from './src/screens/PreSessionSUDScreen';
+import { GoalSettingScreen } from './src/screens/GoalSettingScreen';
+import { SUDRatingScreen } from './src/screens/SUDRatingScreen';
 import { SessionScreen } from './src/screens/SessionScreen';
 import { PostSessionSUDScreen } from './src/screens/PostSessionSUDScreen';
 import { SummaryScreen } from './src/screens/SummaryScreen';
@@ -16,9 +17,10 @@ import { loadSettings, saveSettings, saveSessionHistory, loadDemoDataIfNeeded } 
 import { ThemeProvider, useTheme } from './src/theme';
 
 export type SessionStackParamList = {
-  PreSessionSUD: undefined;
-  Session: { preSUD: number; goal?: string };
-  PostSessionSUD: { partialSummary: Omit<SessionSummary, 'postSUD'>; goal?: string };
+  GoalSetting: undefined;
+  SUDRating: { goal: string };
+  Session: { preSUD: number; goal: string };
+  PostSessionSUD: { partialSummary: Omit<SessionSummary, 'postSUD'>; goal: string };
   Summary: { summary: SessionSummary };
 };
 
@@ -81,18 +83,31 @@ function AppContent({ settings, onSettingsChange }: {
         <Stack.Screen name="HomeTab">
           {({ navigation }) => (
             <HomeScreen
-              onStartSession={() => navigation.navigate('PreSessionSUD')}
+              onStartSession={() => navigation.navigate('GoalSetting')}
               onOpenSettings={() => {}} // Handled by bottom tabs
               onOpenStats={() => {}} // Handled by bottom tabs
             />
           )}
         </Stack.Screen>
 
-        <Stack.Screen name="PreSessionSUD">
+        <Stack.Screen name="GoalSetting">
           {({ navigation }) => (
-            <PreSessionSUDScreen
-              onContinue={(sudValue, goal) =>
-                navigation.navigate('Session', { preSUD: sudValue, goal })
+            <GoalSettingScreen
+              onContinue={(goal) => navigation.navigate('SUDRating', { goal })}
+              onBack={() => navigation.goBack()}
+            />
+          )}
+        </Stack.Screen>
+
+        <Stack.Screen name="SUDRating">
+          {({ navigation, route }) => (
+            <SUDRatingScreen
+              goal={route.params.goal}
+              onContinue={(sudValue) =>
+                navigation.navigate('Session', {
+                  preSUD: sudValue,
+                  goal: route.params.goal,
+                })
               }
               onBack={() => navigation.goBack()}
             />
@@ -108,7 +123,7 @@ function AppContent({ settings, onSettingsChange }: {
               onSessionComplete={(partialSummary) =>
                 navigation.navigate('PostSessionSUD', {
                   partialSummary,
-                  goal: route.params.goal
+                  goal: route.params.goal,
                 })
               }
               onBack={() => navigation.goBack()}
@@ -123,7 +138,7 @@ function AppContent({ settings, onSettingsChange }: {
               goal={route.params.goal}
               onContinue={(summary) =>
                 navigation.navigate('Summary', {
-                  summary: { ...summary, goal: route.params.goal }
+                  summary: { ...summary, goal: route.params.goal },
                 })
               }
             />
@@ -173,11 +188,26 @@ function AppContent({ settings, onSettingsChange }: {
         <Tab.Screen
           name="HomeTab"
           component={HomeTabNavigator}
-          options={{
-            tabBarLabel: 'Home',
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="home" size={size} color={color} />
-            ),
+          options={({ route }) => {
+            const routeName = getFocusedRouteNameFromRoute(route) ?? 'HomeTab';
+            // Hide tab bar during session flow
+            const hideTabBar = ['GoalSetting', 'SUDRating', 'Session', 'PostSessionSUD', 'Summary'].includes(routeName);
+
+            return {
+              tabBarLabel: 'Home',
+              tabBarIcon: ({ color, size }) => (
+                <Ionicons name="home" size={size} color={color} />
+              ),
+              tabBarStyle: hideTabBar
+                ? { display: 'none' }
+                : {
+                    backgroundColor: theme.colors.backgroundElevated,
+                    borderTopColor: theme.colors.border,
+                    paddingTop: 8,
+                    paddingBottom: 8,
+                    height: 68,
+                  },
+            };
           }}
         />
 

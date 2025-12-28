@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import * as ScreenOrientation from 'expo-screen-orientation';
@@ -34,7 +35,8 @@ export const SessionScreen: React.FC<SessionScreenProps> = ({
   onBack,
 }) => {
   const { theme } = useTheme();
-  const styles = React.useMemo(() => createStyles(theme), [theme]);
+  const insets = useSafeAreaInsets();
+  const styles = React.useMemo(() => createStyles(theme, insets), [theme, insets]);
   const [currentSide, setCurrentSide] = React.useState<StimulationSide>('left');
   const [midSUDs, setMidSUDs] = useState<SUDRating[]>([]);
   const [showSUDCheck, setShowSUDCheck] = useState(false);
@@ -287,17 +289,21 @@ export const SessionScreen: React.FC<SessionScreenProps> = ({
   );
 };
 
-const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
+const createStyles = (
+  theme: ReturnType<typeof useTheme>['theme'],
+  insets: ReturnType<typeof useSafeAreaInsets>
+) =>
   StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: theme.colors.background, // Use theme background for cohesive feel
+      backgroundColor: theme.colors.background,
     },
     header: {
       position: 'absolute',
-      top: theme.spacing[5],
-      left: theme.spacing[5],
-      right: theme.spacing[5],
+      // In landscape, use horizontal insets as top/left/right
+      top: Math.max(insets.left, theme.spacing[3]),
+      left: Math.max(insets.top, theme.spacing[3]),
+      right: Math.max(insets.right, theme.spacing[3]),
       zIndex: 10,
       flexDirection: 'row',
       justifyContent: 'space-between',
@@ -307,26 +313,30 @@ const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
       backgroundColor: theme.colors.transparent,
     },
     stimulusContainer: {
-      flex: 1,
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 100, // Leave space for controls at bottom
       justifyContent: 'center',
       alignItems: 'center',
     },
     overlay: {
       position: 'absolute',
-      top: 80,
+      top: Math.max(insets.left, 60), // In landscape, left becomes top
       left: 0,
       right: 0,
       zIndex: 5,
     },
     controls: {
       position: 'absolute',
-      bottom: theme.spacing[10],
-      left: 0,
-      right: 0,
+      // In landscape, use right inset as bottom
+      bottom: Math.max(insets.right, theme.spacing[5]),
+      left: Math.max(insets.top, theme.spacing[5]),
+      right: Math.max(insets.bottom, theme.spacing[5]),
       flexDirection: 'row',
       justifyContent: 'center',
       gap: theme.spacing[4],
-      paddingHorizontal: theme.spacing[5],
       zIndex: 10,
     },
     controlButton: {
