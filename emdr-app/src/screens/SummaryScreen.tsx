@@ -1,7 +1,13 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import { SessionSummary } from '../types';
+import React, { useEffect, useRef } from 'react';
+import { View, StyleSheet, ScrollView, Animated } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { SessionSummary } from '../types';
+import { SUDGraph } from '../components/SUDGraph';
+import { Button } from '../components/ui/Button';
+import { Card } from '../components/ui/Card';
+import { Text } from '../components/ui/Text';
+import { theme, getSUDEmoji } from '../theme';
 
 interface SummaryScreenProps {
   summary: SessionSummary;
@@ -22,101 +28,113 @@ export const SummaryScreen: React.FC<SummaryScreenProps> = ({
   const sudImproved = sudChange < 0;
   const sudChangeAbs = Math.abs(sudChange);
 
+  const scaleAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.spring(scaleAnim, {
+      toValue: 1,
+      tension: 50,
+      friction: 7,
+      useNativeDriver: true,
+    }).start();
+  }, []);
+
   return (
     <LinearGradient
-      colors={['#1a1a1a', '#0a0a0a']}
+      colors={[theme.colors.backgroundLight, theme.colors.background]}
       style={styles.container}
     >
       <ScrollView contentContainerStyle={styles.content}>
+        {/* Header with Success Animation */}
         <View style={styles.header}>
-          <Text style={styles.title}>Session Complete</Text>
-          <View style={styles.checkmark}>
-            <Text style={styles.checkmarkText}>✓</Text>
-          </View>
+          <Text variant="h2" align="center" style={styles.title}>
+            Session Complete
+          </Text>
+          <Animated.View
+            style={[
+              styles.checkmark,
+              {
+                transform: [{ scale: scaleAnim }],
+              },
+            ]}
+          >
+            <Ionicons name="checkmark-circle" size={80} color={theme.colors.success} />
+          </Animated.View>
         </View>
 
-        {/* SUD Comparison */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Distress Level (SUD)</Text>
-
-          <View style={styles.sudComparison}>
-            <View style={styles.sudItem}>
-              <Text style={styles.sudLabel}>Before</Text>
-              <Text style={styles.sudValue}>{summary.preSUD.value}</Text>
-            </View>
-
-            <View style={styles.sudArrow}>
-              <Text style={styles.sudArrowText}>→</Text>
-            </View>
-
-            <View style={styles.sudItem}>
-              <Text style={styles.sudLabel}>After</Text>
-              <Text style={styles.sudValue}>{summary.postSUD.value}</Text>
-            </View>
-          </View>
-
-          <View style={styles.sudChangeContainer}>
-            <Text
-              style={[
-                styles.sudChange,
-                sudImproved ? styles.sudImproved : styles.sudWorsened,
-              ]}
-            >
-              {sudImproved ? '↓' : '↑'} {sudChangeAbs} point{sudChangeAbs !== 1 ? 's' : ''}
-            </Text>
-            {sudImproved ? (
-              <Text style={styles.sudChangeLabel}>Distress reduced</Text>
-            ) : sudChange > 0 ? (
-              <Text style={styles.sudChangeLabel}>Distress increased</Text>
-            ) : (
-              <Text style={styles.sudChangeLabel}>No change</Text>
-            )}
-          </View>
-        </View>
+        {/* SUD Graph */}
+        <Card variant="elevated" style={styles.graphCard}>
+          <SUDGraph
+            preSUD={summary.preSUD}
+            postSUD={summary.postSUD}
+            midSUDs={summary.midSUDs}
+          />
+        </Card>
 
         {/* Session Stats */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Session Details</Text>
+        <View style={styles.statsContainer}>
+          <Card variant="elevated" style={styles.statCard}>
+            <Ionicons name="time-outline" size={32} color={theme.colors.primary} />
+            <Text variant="h4" style={styles.statValue}>
+              {formatDuration(summary.totalDuration)}
+            </Text>
+            <Text variant="caption" color="textSecondary">
+              Duration
+            </Text>
+          </Card>
 
-          <View style={styles.statsGrid}>
-            <View style={styles.statItem}>
-              <Text style={styles.statLabel}>Duration</Text>
-              <Text style={styles.statValue}>{formatDuration(summary.totalDuration)}</Text>
-            </View>
-
-            <View style={styles.statItem}>
-              <Text style={styles.statLabel}>Sets Completed</Text>
-              <Text style={styles.statValue}>{summary.totalSets}</Text>
-            </View>
-          </View>
+          <Card variant="elevated" style={styles.statCard}>
+            <Ionicons name="repeat-outline" size={32} color={theme.colors.primary} />
+            <Text variant="h4" style={styles.statValue}>
+              {summary.totalSets}
+            </Text>
+            <Text variant="caption" color="textSecondary">
+              Sets Completed
+            </Text>
+          </Card>
         </View>
 
-        {/* Mid-session SUDs if any */}
+        {/* Mid-Session Ratings */}
         {summary.midSUDs.length > 0 && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Mid-Session Ratings</Text>
+            <Text variant="h5" style={styles.sectionTitle}>
+              Progress During Session
+            </Text>
             <View style={styles.midSudsList}>
               {summary.midSUDs.map((sud, index) => (
-                <View key={index} style={styles.midSudItem}>
-                  <Text style={styles.midSudLabel}>Set {index + 1}</Text>
-                  <Text style={styles.midSudValue}>{sud.value}</Text>
-                </View>
+                <Card key={index} variant="default" style={styles.midSudItem}>
+                  <View style={styles.midSudLeft}>
+                    <Text style={styles.midSudEmoji}>{getSUDEmoji(sud.value)}</Text>
+                    <Text variant="label" color="textSecondary">
+                      After Set {index + 1}
+                    </Text>
+                  </View>
+                  <Text variant="h4" style={{ color: theme.colors.primary }}>
+                    {sud.value}
+                  </Text>
+                </Card>
               ))}
             </View>
           </View>
         )}
 
-        {/* Note */}
-        <View style={styles.noteContainer}>
-          <Text style={styles.noteText}>
+        {/* Encouragement Note */}
+        <Card variant="default" style={styles.noteCard}>
+          <Ionicons name="bulb-outline" size={24} color={theme.colors.warning} style={styles.noteIcon} />
+          <Text variant="body" color="textSecondary" align="center">
             Remember to discuss this session with your therapist. Your progress is important.
           </Text>
-        </View>
+        </Card>
 
         {/* Done Button */}
-        <TouchableOpacity style={styles.doneButton} onPress={onDone}>
-          <Text style={styles.doneButtonText}>Done</Text>
-        </TouchableOpacity>
+        <Button
+          onPress={onDone}
+          size="large"
+          fullWidth
+          icon={<Ionicons name="home" size={24} color={theme.colors.white} />}
+        >
+          Return Home
+        </Button>
       </ScrollView>
     </LinearGradient>
   );
@@ -127,151 +145,69 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    paddingHorizontal: 32,
-    paddingVertical: 60,
-    paddingBottom: 40,
+    paddingHorizontal: theme.layout.screenPadding,
+    paddingVertical: theme.spacing[12],
+    paddingBottom: theme.spacing[10],
   },
   header: {
     alignItems: 'center',
-    marginBottom: 40,
+    marginBottom: theme.spacing[8],
   },
   title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 20,
+    marginBottom: theme.spacing[6],
   },
   checkmark: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#00C853',
-    justifyContent: 'center',
-    alignItems: 'center',
+    marginBottom: theme.spacing[4],
   },
-  checkmarkText: {
-    fontSize: 48,
-    color: '#fff',
+  graphCard: {
+    marginBottom: theme.spacing[6],
+    padding: theme.spacing[5],
   },
-  section: {
-    marginBottom: 32,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#fff',
-    marginBottom: 16,
-  },
-  sudComparison: {
+  statsContainer: {
     flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 24,
+    gap: theme.spacing[4],
+    marginBottom: theme.spacing[6],
   },
-  sudItem: {
-    alignItems: 'center',
-    minWidth: 100,
-  },
-  sudLabel: {
-    fontSize: 14,
-    color: '#999',
-    marginBottom: 8,
-  },
-  sudValue: {
-    fontSize: 48,
-    fontWeight: 'bold',
-    color: '#00A8E8',
-  },
-  sudArrow: {
-    marginHorizontal: 20,
-  },
-  sudArrowText: {
-    fontSize: 32,
-    color: '#666',
-  },
-  sudChangeContainer: {
-    alignItems: 'center',
-    padding: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    borderRadius: 12,
-  },
-  sudChange: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 4,
-  },
-  sudImproved: {
-    color: '#00C853',
-  },
-  sudWorsened: {
-    color: '#FF6F00',
-  },
-  sudChangeLabel: {
-    fontSize: 14,
-    color: '#999',
-  },
-  statsGrid: {
-    flexDirection: 'row',
-    gap: 16,
-  },
-  statItem: {
+  statCard: {
     flex: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    padding: 20,
-    borderRadius: 12,
     alignItems: 'center',
-  },
-  statLabel: {
-    fontSize: 14,
-    color: '#999',
-    marginBottom: 8,
+    padding: theme.spacing[5],
   },
   statValue: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#fff',
+    marginVertical: theme.spacing[2],
+  },
+  section: {
+    marginBottom: theme.spacing[6],
+  },
+  sectionTitle: {
+    marginBottom: theme.spacing[4],
   },
   midSudsList: {
-    gap: 12,
+    gap: theme.spacing[3],
   },
   midSudItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    padding: 16,
-    borderRadius: 8,
+    padding: theme.spacing[4],
   },
-  midSudLabel: {
-    fontSize: 16,
-    color: '#ccc',
-  },
-  midSudValue: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#00A8E8',
-  },
-  noteContainer: {
-    backgroundColor: 'rgba(0, 168, 232, 0.1)',
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 32,
-  },
-  noteText: {
-    fontSize: 14,
-    color: '#ccc',
-    textAlign: 'center',
-    lineHeight: 20,
-  },
-  doneButton: {
-    backgroundColor: '#00A8E8',
-    paddingVertical: 20,
-    borderRadius: 16,
+  midSudLeft: {
+    flexDirection: 'row',
     alignItems: 'center',
+    gap: theme.spacing[3],
   },
-  doneButtonText: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#fff',
+  midSudEmoji: {
+    fontSize: 32,
+  },
+  noteCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: theme.spacing[4],
+    backgroundColor: theme.colors.primary10,
+    marginBottom: theme.spacing[6],
+    gap: theme.spacing[3],
+  },
+  noteIcon: {
+    marginRight: theme.spacing[2],
   },
 });
